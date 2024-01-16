@@ -4,14 +4,15 @@ using UnityEngine;
 
 public class AgentObject : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] Transform m_target;
+
+    public Vector3 TargetPosition
     {
-        
+        get { return m_target.position; }
+        set { m_target.position = value; }
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
         
     }
