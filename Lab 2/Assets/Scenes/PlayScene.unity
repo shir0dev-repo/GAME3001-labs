@@ -316,6 +316,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Starship Parent
       objectReference: {fileID: 0}
+    - target: {fileID: 4565006862017335285, guid: 24fe13f212ff35d4da5de9817b95fadb, type: 3}
+      propertyPath: m_target
+      value: 
+      objectReference: {fileID: 1515511644}
+    - target: {fileID: 4565006862017335285, guid: 24fe13f212ff35d4da5de9817b95fadb, type: 3}
+      propertyPath: _rigidbody
+      value: 
+      objectReference: {fileID: 1963936054}
     - target: {fileID: 7001827523004621720, guid: 24fe13f212ff35d4da5de9817b95fadb, type: 3}
       propertyPath: m_RootOrder
       value: 6
@@ -523,6 +531,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_AddedGameObjects: []
   m_SourcePrefab: {fileID: 100100000, guid: b0f7a8732335dbb429cd4c26c4aa261b, type: 3}
+--- !u!4 &1515511644 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2803132891186600804, guid: b0f7a8732335dbb429cd4c26c4aa261b, type: 3}
+  m_PrefabInstance: {fileID: 914583695}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1826504611
 GameObject:
   m_ObjectHideFlags: 0
@@ -674,3 +687,8 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!50 &1963936054 stripped
+Rigidbody2D:
+  m_CorrespondingSourceObject: {fileID: 6580887675407599656, guid: 24fe13f212ff35d4da5de9817b95fadb, type: 3}
+  m_PrefabInstance: {fileID: 583241467}
+  m_PrefabAsset: {fileID: 0}
