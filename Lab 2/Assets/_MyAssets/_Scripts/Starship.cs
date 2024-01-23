@@ -43,4 +43,10 @@ public class Starship : AgentObject
 
         _rigidbody.velocity = transform.up * _moveSpeed;
     }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Target"))
+            GetComponent<AudioSource>().Play();
+    }
 }
