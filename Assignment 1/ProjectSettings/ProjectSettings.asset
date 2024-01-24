@@ -12,7 +12,7 @@ PlayerSettings:
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: DefaultCompany
+  companyName: Shir0dev
   productName: GAME3001 Assignment 1
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
@@ -673,8 +673,8 @@ PlayerSettings:
   apiCompatibilityLevelPerPlatform: {}
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: GAME3001 Assignment 1
-  metroPackageVersion: 
+  metroPackageName: GAME3001Assignment1
+  metroPackageVersion: 1.0.0.0
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
@@ -682,7 +682,7 @@ PlayerSettings:
   metroCertificateNotAfter: 0000000000000000
   metroApplicationDescription: GAME3001 Assignment 1
   wsaImages: {}
-  metroTileShortName: 
+  metroTileShortName: GAME3001 Assignment 1
   metroTileShowName: 0
   metroMediumTileShowName: 0
   metroLargeTileShowName: 0

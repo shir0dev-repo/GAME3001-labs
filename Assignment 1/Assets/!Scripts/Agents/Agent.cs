@@ -6,10 +6,11 @@ public class Agent : MonoBehaviour
 {
     public enum AgentBehaviour
     {
-        Idle,
-        Seek,
-        Flee,
-        Arrival
+        Idle = 0,
+        Seek = 1,
+        Flee = 2,
+        Arrival = 3,
+        Length
     }
 
     [SerializeField] private LayerMask _groundLayer;
@@ -17,19 +18,14 @@ public class Agent : MonoBehaviour
     [SerializeField] private float _moveSpeed = 5f;
     [SerializeField] private float _rotationSpeed = 65f;
 
-    private AgentBehaviour _agentBehaviour;
+    private AgentBehaviour _agentBehaviour = AgentBehaviour.Idle;
 
-    private Vector3 _targetPosition = Vector3.zero;
+    private Transform _target;
     private Vector3 _targetDirection = Vector3.zero;
-
-    private void Awake()
-    {
-        _targetPosition = new(-20, 0, -5);
-    }
 
     private void Update()
     {
-        if (Vector3.Distance(transform.position, _targetPosition) < 0.1f) return;
+        if (Vector3.Distance(transform.position, _target.position) < 0.1f) return;
 
         switch (_agentBehaviour)
         {
@@ -51,7 +47,7 @@ public class Agent : MonoBehaviour
 
     public void SetTarget(Transform target)
     {
-        _targetPosition = target.position;
+        _target = target;
     }
 
     public void SetBehaviour(AgentBehaviour behaviour)
@@ -66,7 +62,7 @@ public class Agent : MonoBehaviour
 
     private void RotateToDirection()
     {
-        _targetDirection = _targetPosition - transform.position;
+        _targetDirection = _target.position - transform.position;
         _targetDirection.y = 0;
         _targetDirection.Normalize();
 
@@ -78,6 +74,6 @@ public class Agent : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.blue;
-        Gizmos.DrawLine(transform.position, _targetPosition);
+        Gizmos.DrawLine(transform.position, _target.position);
     }
 }

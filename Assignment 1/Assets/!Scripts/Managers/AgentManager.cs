@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class AgentManager : MonoBehaviour
@@ -10,6 +8,11 @@ public class AgentManager : MonoBehaviour
     private Transform _target;
     private Agent _agent;
 
+    private void Awake()
+    {
+        SpawnAgent();
+    }
+
     public void SpawnAgent()
     {
         _agent = Instantiate(_agentPrefab).GetComponent<Agent>();
@@ -19,8 +22,10 @@ public class AgentManager : MonoBehaviour
         _agent.gameObject.SetActive(false);
     }
 
-    public void SetAgentState(Agent.AgentBehaviour agentBehaviour)
+    public void SetAgentState(int behaviourIndex)
     {
-        _agent.SetBehaviour(agentBehaviour);
+        if (behaviourIndex > (int)Agent.AgentBehaviour.Length) return;
+
+        _agent.SetBehaviour((Agent.AgentBehaviour)behaviourIndex);
     }
 }
