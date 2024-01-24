@@ -22,10 +22,12 @@ public class AgentManager : MonoBehaviour
         _agent.gameObject.SetActive(false);
     }
 
+
+
     public void SetAgentState(int behaviourIndex)
     {
-        if (behaviourIndex > (int)Agent.AgentBehaviour.Length) return;
+        if (behaviourIndex > (int)Agent.AgentState.Length) return;
 
-        _agent.SetBehaviour((Agent.AgentBehaviour)behaviourIndex);
+        _agent.SetBehaviour((Agent.AgentState)behaviourIndex);
     }
 }
