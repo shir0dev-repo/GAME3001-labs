@@ -9,26 +9,42 @@ public class Starship : AgentObject
     [SerializeField] private float _rotationSpeed = 90.0f;
     [SerializeField] private Rigidbody2D _rigidbody;
 
+    private Vector3 _initialPosition;
+
     protected override void Start()
     {
         base.Start();
         _rigidbody = GetComponent<Rigidbody2D>();
+        ShouldSeek = false;
+        _initialPosition = transform.position;
     }
 
     private void Update()
     {
         //Seek();
-        SeekForward();
+        if (ShouldSeek)
+            SeekForward();
     }
 
-    private void Seek()
+    public void ResetState()
     {
-        Vector2 linearVelocity = (TargetPosition - transform.position).normalized * _moveSpeed;
+        ShouldSeek = false;
 
-        Vector2 angularVelocity = linearVelocity - _rigidbody.velocity;
-
-        _rigidbody.AddForce(angularVelocity);
+        
+        _rigidbody.velocity = Vector3.zero;
+        transform.SetPositionAndRotation(_initialPosition, Quaternion.identity);
     }
+
+    public void StartSeeking() => ShouldSeek = true;
+
+    // private void Seek()
+    // {
+    //     Vector2 linearVelocity = (TargetPosition - transform.position).normalized * _moveSpeed;
+    // 
+    //     Vector2 angularVelocity = linearVelocity - _rigidbody.velocity;
+    // 
+    //     _rigidbody.AddForce(angularVelocity);
+    // }
 
     private void SeekForward()
     {
