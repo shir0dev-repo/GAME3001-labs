@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class SoundManager : PersistentSingleton<SoundManager>
+public class SoundManager : MonoBehaviour
 {
     [SerializeField] private AudioSource _musicSource;
     [SerializeField] private AudioSource _sfxSource;
