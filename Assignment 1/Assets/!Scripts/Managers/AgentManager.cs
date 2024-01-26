@@ -26,7 +26,7 @@ public class AgentManager : MonoBehaviour
 
     public void SetAgentState(int behaviourIndex)
     {
-        if (behaviourIndex > (int)Agent.AgentState.Length) return;
+        if (behaviourIndex < 0 || behaviourIndex > (int)Agent.AgentState.Length ) return;
 
         _agent.SetBehaviour((Agent.AgentState)behaviourIndex);
     }
