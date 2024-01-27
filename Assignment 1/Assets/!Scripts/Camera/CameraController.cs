@@ -1,63 +1,36 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-    [SerializeField] private Transform _focusTransform;
-    [SerializeField] private Transform _cameraPivot;
     [SerializeField] private Transform _cameraArm;
-
-    [SerializeField] private float _rotationSpeed = 30f;
-    [SerializeField] private float _zoomSpeed = 10f;
-    [SerializeField] private float _maxDistance = 30f;
-    [SerializeField] private float _minDistance = 10f;
-    [SerializeField] private float _cameraHeight = 15f;
-
-    private float _currentDistance;
+    [SerializeField] private Transform _cameraPivot;
+    [SerializeField] private Transform _cameraTarget;
+    [Space]
+    [SerializeField] private float _panSpeed;
 
     private void Awake()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-
-        _cameraPivot.LookAt(_focusTransform);
+        _cameraPivot.LookAt(_cameraTarget);
     }
 
     private void LateUpdate()
     {
-        // pan
         if (Input.GetMouseButton(1))
         {
+            if (Cursor.lockState != CursorLockMode.Locked)
+                Cursor.lockState = CursorLockMode.Locked;
+
             PanCamera();
         }
-
-        // zoom
-        if (Input.mouseScrollDelta.sqrMagnitude > 0.1f)
-        {
-            ZoomCamera();
-        }
+        else if (Cursor.lockState == CursorLockMode.Locked)
+            Cursor.lockState = CursorLockMode.None;
     }
 
     private void PanCamera()
     {
-        float rotDirectionX = Input.GetAxisRaw("Mouse X");
-        _cameraArm.Rotate(rotDirectionX * _rotationSpeed * Time.deltaTime * Vector3.up);
-    }
+        float panDirection = Input.GetAxisRaw("Mouse X");
 
-    private void ZoomCamera()
-    {
-        float zoomDirection = Input.GetAxisRaw("Mouse ScrollWheel");
-        Vector3 newPosition = _zoomSpeed * zoomDirection * _cameraPivot.forward;
-        _cameraPivot.position += newPosition;
-
-        _currentDistance = Vector3.Distance(_cameraPivot.position, _focusTransform.position);
-        if (_currentDistance > _maxDistance)
-        {
-            _cameraPivot.position = (_cameraPivot.position - _focusTransform.position).normalized * _maxDistance;
-        }
-        else if (_currentDistance < _minDistance)
-        {
-            _cameraPivot.position = (_cameraPivot.position - _focusTransform.position).normalized * _minDistance;
-        }
+        _cameraArm.Rotate(panDirection * _panSpeed * 100f * Time.deltaTime * Vector3.up);
     }
 }
