@@ -88,9 +88,6 @@ public class AgentManager : MonoBehaviour
 
         _agent.transform.SetPositionAndRotation(GetOutskirtPositionForAgent(), Quaternion.identity);
 
-        _target.gameObject.SetActive(true);
-        _agent.gameObject.SetActive(true);
-
         _agent.SetState(Agent.AgentState.Seek);
     }
 
@@ -100,10 +97,13 @@ public class AgentManager : MonoBehaviour
         Vector3 randomPosition = new Vector3(Random.Range(-extents.x, extents.x), 0, Random.Range(-extents.x, extents.x));
         _target.position = randomPosition;
 
-        Vector3 closeToTarget = _target.position + (Vector3.left * 3f);
+        Vector3 closeToTarget = _target.position + (Vector3.left * 2f);
         Quaternion randomRotation = Quaternion.AngleAxis(Random.Range(0, 359f), _target.up);
 
         _agent.transform.SetPositionAndRotation(randomRotation * closeToTarget, Quaternion.identity);
+
+        _target.gameObject.SetActive(true);
+        _agent.gameObject.SetActive(true);
 
         _agent.SetState(Agent.AgentState.Flee);
     }
