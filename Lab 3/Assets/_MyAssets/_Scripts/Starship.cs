@@ -9,9 +9,9 @@ public class Starship : AgentObject
     [SerializeField] float rotationSpeed;
 
     [SerializeField] float whiskerLength = 1f;
-    [SerializeField, Range(0, 360)] float whiskerAngle = 35f;
+    [SerializeField, Range(90f, 360f)] float whiskerAngleMax = 90f;
     [SerializeField] float avoidanceWeight = 2f;
-    
+    [SerializeField] int whiskerCount = 4;
     float whiskerAngleIncrement;
 
     // Add fields for whisper length, angle and avoidance weight.
@@ -19,12 +19,15 @@ public class Starship : AgentObject
     //
     //
     private Rigidbody2D rb;
+    private bool[] collisions;
 
     new void Start() // Note the new.
     {
         base.Start(); // Explicitly invoking Start of AgentObject.
         Debug.Log("Starting Starship.");
         rb = GetComponent<Rigidbody2D>();
+
+        collisions = new bool[whiskerCount];
     }
 
     void Update()
@@ -40,27 +43,42 @@ public class Starship : AgentObject
 
     private void AvoidObstacles()
     {
-        bool hitLeft = CastWhisker(whiskerAngle);
-        bool hitRight = CastWhisker(-whiskerAngle);
+        if (collisions.Length != whiskerCount)
+            collisions = new bool[whiskerCount];
 
-        if (hitLeft)
+        whiskerAngleIncrement = whiskerAngleMax / whiskerCount;
+        float currentAngle = -whiskerAngleMax / 2f;
+
+        Vector2 whiskerDirection = transform.up;
+        float desiredDirection = 0;
+
+        for (int i = 0; i < whiskerCount; i++)
         {
-            // rotate CW
-            RotateClockwise();
+            if (CastWhisker(currentAngle, out whiskerDirection))
+            {
+                desiredDirection += Vector2.Dot(-transform.right, whiskerDirection);
+                if (i > 0) desiredDirection /= 2f;
+            }
+
+            currentAngle += whiskerAngleIncrement;
         }
-        else if (hitRight)
-        {
-            // rotate CCW
+
+        Debug.Log(desiredDirection);
+
+        if (desiredDirection == 0) return;
+
+        else if (desiredDirection < 0)
             RotateCounterClockwise();
-        }
+        else if (desiredDirection > 0)
+            RotateClockwise();
     }
 
-    private bool CastWhisker(float angle)
+    private bool CastWhisker(float angle, out Vector2 whiskerDirection)
     {
         Color rayColor = Color.red;
 
         // Cast whiskers to detect obstacles.
-        Vector2 whiskerDirection = Quaternion.Euler(0, 0, angle) * transform.up;
+        whiskerDirection = Quaternion.Euler(0, 0, angle) * transform.up;
 
         RaycastHit2D hit = Physics2D.Raycast(transform.position, whiskerDirection, whiskerLength);
         
