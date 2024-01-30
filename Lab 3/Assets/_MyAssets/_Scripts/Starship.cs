@@ -7,6 +7,12 @@ public class Starship : AgentObject
 {
     [SerializeField] float movementSpeed;
     [SerializeField] float rotationSpeed;
+    [SerializeField] float whiskerLength = 1f;
+    [SerializeField, Range(90, 360)] float whiskerMaxAngle = 90f;
+    [SerializeField] int whiskerCount = 4;
+    
+    float whiskerAngleIncrement;
+
     // Add fields for whisper length, angle and avoidance weight.
     //
     //
@@ -27,27 +33,36 @@ public class Starship : AgentObject
             // Seek();
             SeekForward();
             // Add call to AvoidObstacles.
-            //
+            AvoidObstacles();
         }
     }
 
     private void AvoidObstacles()
     {
-        // Cast whiskers to detect obstacles.
-        //
-        //
+        whiskerAngleIncrement = whiskerMaxAngle / whiskerCount;
 
-        // Adjust rotation based on detected obstacles.
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
+        for (int i = -whiskerCount / 2; i < whiskerCount / 2; i++)
+        {
+            CastWhisker(whiskerAngleIncrement * i);
+        }
+        //bool hitLeft = CastWhisker(35f);
+        //bool hitRight = CastWhisker(-35f);
+    }
+
+    private bool CastWhisker(float angle)
+    {
+        Color rayColor = Color.red;
+
+        // Cast whiskers to detect obstacles.
+        Vector2 whiskerDirection = Quaternion.Euler(0, 0, angle) * transform.up;
+
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, whiskerDirection, whiskerLength);
+        
+        if (hit.collider != null)
+            rayColor = Color.green;
+        
+        Debug.DrawRay(transform.position, whiskerDirection * whiskerLength, rayColor);
+        return hit.collider != null;
     }
 
     private void RotateCounterClockwise()
