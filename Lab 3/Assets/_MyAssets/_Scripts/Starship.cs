@@ -7,9 +7,10 @@ public class Starship : AgentObject
 {
     [SerializeField] float movementSpeed;
     [SerializeField] float rotationSpeed;
+
     [SerializeField] float whiskerLength = 1f;
-    [SerializeField, Range(90, 360)] float whiskerMaxAngle = 90f;
-    [SerializeField] int whiskerCount = 4;
+    [SerializeField, Range(0, 360)] float whiskerAngle = 35f;
+    [SerializeField] float avoidanceWeight = 2f;
     
     float whiskerAngleIncrement;
 
@@ -39,14 +40,19 @@ public class Starship : AgentObject
 
     private void AvoidObstacles()
     {
-        whiskerAngleIncrement = whiskerMaxAngle / whiskerCount;
+        bool hitLeft = CastWhisker(whiskerAngle);
+        bool hitRight = CastWhisker(-whiskerAngle);
 
-        for (int i = -whiskerCount / 2; i < whiskerCount / 2; i++)
+        if (hitLeft)
         {
-            CastWhisker(whiskerAngleIncrement * i);
+            // rotate CW
+            RotateClockwise();
         }
-        //bool hitLeft = CastWhisker(35f);
-        //bool hitRight = CastWhisker(-35f);
+        else if (hitRight)
+        {
+            // rotate CCW
+            RotateCounterClockwise();
+        }
     }
 
     private bool CastWhisker(float angle)
@@ -68,13 +74,12 @@ public class Starship : AgentObject
     private void RotateCounterClockwise()
     {
         // Rotate counterclockwise based on rotationSpeed and a weight.
-        // 
+        transform.Rotate(Vector3.forward, rotationSpeed * avoidanceWeight * Time.deltaTime);
     }
 
     private void RotateClockwise()
     {
-        // Rotate clockwise based on rotationSpeed and a weight.
-        // 
+        transform.Rotate(Vector3.forward, -rotationSpeed * avoidanceWeight * Time.deltaTime);
     }
 
     // Add CastWhisker method. I removed it entirely.
