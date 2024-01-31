@@ -41,25 +41,23 @@ public class Starship : AgentObject
         whiskerAngleIncrement = whiskerAngleMax / whiskerCount;
         float currentAngle = (-whiskerAngleMax / 2f) + whiskerAngleIncrement / 2f;
 
-        float weightedDirection = 0;
+        float preferredDirection = 0;
         for (int i = 0; i < whiskerCount; i++)
         {
             if (CastWhisker(currentAngle, out Vector2 whiskerDirection))
             {
                 float angleDir = GetAngleDirection(whiskerDirection);
-                weightedDirection += angleDir;
-                Debug.Log(i + ": " + angleDir);
+                preferredDirection += angleDir;
             }
 
             currentAngle += whiskerAngleIncrement;
         }
-
-        Debug.Log(weightedDirection);
-
-
-        if (weightedDirection < 0)
+        
+        if (preferredDirection < 0)
             RotateCounterClockwise();
-        else if (weightedDirection > 0)
+        else if (preferredDirection > 0)
+            RotateClockwise();
+        else // safety net in case all whiskers are contacting with obstacle
             RotateClockwise();
     }
 
