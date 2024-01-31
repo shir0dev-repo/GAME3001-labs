@@ -12,24 +12,25 @@ public class Agent : MonoBehaviour
         Seek = 1,
         Flee = 2,
         Arrival = 3,
-        Length
+        Avoid = 4
     }
 
-    [SerializeField] private LayerMask _groundLayer;
-    [Space]
-    [SerializeField] private float _moveSpeed = 5f;
+    [SerializeField] private LayerMask _environmentLayer;    
+    [Space, SerializeField] private float _moveSpeed = 5f;
     [SerializeField] private float _rotationSpeed = 65f;
 
-    delegate void AgentBehaviourDelegate();
+    public Transform Target { get; set; }
+    public bool AvoidObstacles { get; set; }
+
+    private delegate void AgentBehaviourDelegate();
     private AgentBehaviourDelegate _agentStateBehaviour;
 
     private AgentState _currentState = AgentState.Idle;
-    private Transform _target;
     private Vector3 _targetDirection = Vector3.zero;
 
     private void Update()
     {
-        if (Vector3.Distance(transform.position, _target.position) < 0.1f) return;
+        if (Target == null || Vector3.Distance(transform.position, Target.position) < 0.1f) return;
 
         _agentStateBehaviour?.Invoke();
     }
@@ -41,25 +42,24 @@ public class Agent : MonoBehaviour
         _agentStateBehaviour = _currentState switch
         {
             AgentState.Idle => null,
-            AgentState.Seek => MoveToTarget,
+            AgentState.Seek => SeekToTarget,
             AgentState.Flee => FleeFromTarget,
             AgentState.Arrival => ArriveAtTarget,
             _ => null
         };
     }
 
-    private void MoveToTarget()
+    private void SeekToTarget()
     {
-        transform.rotation = RotateToDirection(towardsTarget: true);
-        transform.position += Time.deltaTime * _moveSpeed * transform.forward;
+        transform.SetPositionAndRotation(Time.deltaTime * _moveSpeed * transform.forward, RotateToDirection(towardsTarget: true));
     }
 
     private Quaternion RotateToDirection(bool towardsTarget)
     {
         if (towardsTarget)
-            _targetDirection = GetDirection(from: transform.position, to: _target.position);
+            _targetDirection = GetDirection(from: transform.position, to: Target.position);
         else
-            _targetDirection = GetDirection(from: _target.position, to: transform.position);
+            _targetDirection = GetDirection(from: Target.position, to: transform.position);
         _targetDirection.y = 0;
         _targetDirection.Normalize();
 
@@ -70,12 +70,12 @@ public class Agent : MonoBehaviour
 
     private void FleeFromTarget()
     {
-        if (Vector3.Distance(_target.position, transform.position) < 10f)
+        if (Vector3.Distance(Target.position, transform.position) < 10f)
         {
             transform.rotation = RotateToDirection(towardsTarget: false);
             transform.position += Time.deltaTime * _moveSpeed * transform.forward;
         }
-        else if (Quaternion.Angle(transform.rotation, Quaternion.Euler(GetDirection(from: transform.position, to: _target.position))) < 1f)
+        else if (Quaternion.Angle(transform.rotation, Quaternion.Euler(GetDirection(from: transform.position, to: Target.position))) < 1f)
         {
             transform.rotation = RotateToDirection(towardsTarget: true);
         }
@@ -84,16 +84,6 @@ public class Agent : MonoBehaviour
     private void ArriveAtTarget()
     {
         throw new NotImplementedException();
-    }
-
-    public void SetTarget(Transform target)
-    {
-        _target = target;
-    }
-
-    public void SetBehaviour(AgentState behaviour)
-    {
-        _currentState = behaviour;
     }
 
     private Vector3 GetDirection(Vector3 from, Vector3 to)
@@ -105,7 +95,8 @@ public class Agent : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
+        if (Target == null) return;
         Gizmos.color = Color.blue;
-        Gizmos.DrawLine(transform.position, _target.position);
+        Gizmos.DrawLine(transform.position, Target.position);
     }
 }

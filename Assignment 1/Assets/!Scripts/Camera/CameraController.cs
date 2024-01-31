@@ -29,8 +29,8 @@ public class CameraController : MonoBehaviour
 
     private void PanCamera()
     {
-        float panDirection = Input.GetAxisRaw("Mouse X");
+        float panDirection = Mathf.Clamp(Input.GetAxisRaw("Mouse X"), -1, 1);
 
-        _cameraArm.Rotate(panDirection * _panSpeed * 100f * Time.deltaTime * Vector3.up);
+        _cameraArm.Rotate(panDirection * _panSpeed * 50 * Time.deltaTime * Vector3.up);
     }
 }
