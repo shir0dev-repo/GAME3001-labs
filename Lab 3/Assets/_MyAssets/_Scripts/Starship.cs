@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Starship : AgentObject
@@ -19,15 +17,12 @@ public class Starship : AgentObject
     //
     //
     private Rigidbody2D rb;
-    private bool[] collisions;
 
     new void Start() // Note the new.
     {
         base.Start(); // Explicitly invoking Start of AgentObject.
         Debug.Log("Starting Starship.");
         rb = GetComponent<Rigidbody2D>();
-
-        collisions = new bool[whiskerCount];
     }
 
     void Update()
@@ -43,34 +38,45 @@ public class Starship : AgentObject
 
     private void AvoidObstacles()
     {
-        if (collisions.Length != whiskerCount)
-            collisions = new bool[whiskerCount];
-
         whiskerAngleIncrement = whiskerAngleMax / whiskerCount;
-        float currentAngle = -whiskerAngleMax / 2f;
+        float currentAngle = (-whiskerAngleMax / 2f) + whiskerAngleIncrement / 2f;
 
-        Vector2 whiskerDirection = transform.up;
-        float desiredDirection = 0;
-
+        float weightedDirection = 0;
         for (int i = 0; i < whiskerCount; i++)
         {
-            if (CastWhisker(currentAngle, out whiskerDirection))
+            if (CastWhisker(currentAngle, out Vector2 whiskerDirection))
             {
-                desiredDirection += Vector2.Dot(-transform.right, whiskerDirection);
-                if (i > 0) desiredDirection /= 2f;
+                float angleDir = GetAngleDirection(whiskerDirection);
+                weightedDirection += angleDir;
+                Debug.Log(i + ": " + angleDir);
             }
 
             currentAngle += whiskerAngleIncrement;
         }
 
-        Debug.Log(desiredDirection);
+        Debug.Log(weightedDirection);
 
-        if (desiredDirection == 0) return;
 
-        else if (desiredDirection < 0)
+        if (weightedDirection < 0)
             RotateCounterClockwise();
-        else if (desiredDirection > 0)
+        else if (weightedDirection > 0)
             RotateClockwise();
+    }
+
+    private float GetAngleDirection(Vector3 target)
+    {
+        if (Vector3.Angle(transform.up, target.normalized) < whiskerAngleIncrement/2f)
+            return 0f;
+
+        Vector3 perp = Vector3.Cross(transform.up, target);
+        float dirAngle = Vector3.Dot(perp, transform.forward);
+
+        if (dirAngle > 0f)
+            return 1f;
+        else if (dirAngle < 0f)
+            return -1f;
+        else
+            return 0f;
     }
 
     private bool CastWhisker(float angle, out Vector2 whiskerDirection)
@@ -81,10 +87,10 @@ public class Starship : AgentObject
         whiskerDirection = Quaternion.Euler(0, 0, angle) * transform.up;
 
         RaycastHit2D hit = Physics2D.Raycast(transform.position, whiskerDirection, whiskerLength);
-        
+
         if (hit.collider != null)
             rayColor = Color.green;
-        
+
         Debug.DrawRay(transform.position, whiskerDirection * whiskerLength, rayColor);
         return hit.collider != null;
     }
