@@ -991,8 +991,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _agentPrefab: {fileID: 2498171120759130939, guid: 10ddd34f8833e254587c57346d71b52e, type: 3}
   _targetPrefab: {fileID: 2747251837160702032, guid: 536be0efed2fa294788bfbe67b55c6cc, type: 3}
-  _obstaclePrefab: {fileID: 0}
-  _spawnRadius: 10
+  _obstaclePrefab: {fileID: 665536328203869809, guid: 17cfe251987bf8848987189e096c1dc8, type: 3}
+  _spawnRadius: 7
   _agentStateAction:
     m_Name: Agent State
     m_Type: 0

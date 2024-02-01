@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class Agent : MonoBehaviour
@@ -12,19 +11,25 @@ public class Agent : MonoBehaviour
         Avoid = 4
     }
 
-    [SerializeField] private LayerMask _environmentLayer;
-    [Space, SerializeField] private float _moveSpeed = 5f;
-    [SerializeField] private float _rotationSpeed = 65f;
-    [SerializeField] private float _satisfactionRadius = 5f;
-
-    public Transform Target { get; set; }
-    public bool AvoidObstacles { get; set; }
-
     private delegate void AgentBehaviourDelegate();
     private AgentBehaviourDelegate _agentStateBehaviour;
 
-    private AgentState _currentState = AgentState.Idle;
-    private Vector3 _targetDirection = Vector3.zero;
+    [Header("Movement")]
+    [Space, SerializeField] private float _moveSpeed = 5f;
+    [SerializeField] private float _rotationSpeed = 65f;
+
+    [Header("Flee")]
+    [SerializeField] private float _maxFleeDistance = 5f;
+
+    [Header("Arrival")]
+    [SerializeField] private float _arrivalRadius = 5f;
+    [SerializeField] private float _stoppingRadius = 0.75f;
+
+    [Header("Avoidance")]
+    [SerializeField] private LayerMask _environmentLayer;
+
+    public Transform Target { get; set; }
+    public bool AvoidObstacles { get; set; }
 
     private void Update()
     {
@@ -35,77 +40,85 @@ public class Agent : MonoBehaviour
 
     public void SetState(AgentState agentState)
     {
-        _currentState = agentState;
-
-        _agentStateBehaviour = _currentState switch
+        _agentStateBehaviour = agentState switch
         {
             AgentState.Idle => null,
-            AgentState.Seek => SeekToTarget,
-            AgentState.Flee => FleeFromTarget,
-            AgentState.Arrival => ArriveAtTarget,
+            AgentState.Seek => SeekTarget,
+            AgentState.Flee => FleeTarget,
+            AgentState.Arrival => ArriveTarget,
             _ => null
         };
     }
 
-    private void SeekToTarget()
+    private Vector3 GetDirectionToTarget()
     {
-        Vector3 position = transform.position + (Time.deltaTime * _moveSpeed * transform.forward);
-        transform.SetPositionAndRotation(position, RotateToDirection(towardsTarget: true));
-    }
-
-    private Quaternion RotateToDirection(bool towardsTarget)
-    {
-        if (towardsTarget)
-            _targetDirection = GetDirection(from: transform.position, to: Target.position);
+        if (Target == null)
+            return transform.position;
         else
-            _targetDirection = GetDirection(from: Target.position, to: transform.position);
-        _targetDirection.y = 0;
-        _targetDirection.Normalize();
-
-        float targetAngle = Mathf.Atan2(_targetDirection.x, _targetDirection.z) * Mathf.Rad2Deg;
-
-        return Quaternion.RotateTowards(transform.rotation, Quaternion.Euler(0, targetAngle, 0), _rotationSpeed * Time.deltaTime);
+            return Target.position - transform.position;
     }
 
-    private void FleeFromTarget()
+    private void MoveToDirection(Vector3 direction, float maxDisplacement)
     {
-        if (Vector3.Distance(Target.position, transform.position) < 10f)
+        transform.position += direction * maxDisplacement;
+    }
+
+    private Quaternion GetRotationToTarget(Vector3 targetPosition)
+    {
+        if (Target == null)
+            return transform.rotation;
+
+        float targetAngle = Mathf.Atan2(targetPosition.x, targetPosition.z) * Mathf.Rad2Deg;
+
+        return Quaternion.AngleAxis(targetAngle, Vector3.up);
+    }
+
+    private void RotateToDirection(Vector3 targetDirection, float maxDegreeDelta)
+    {
+        if (targetDirection.sqrMagnitude > 1)
+            targetDirection.Normalize();
+
+        Quaternion targetRotation = GetRotationToTarget(targetDirection);
+
+        if (Quaternion.Angle(targetRotation, transform.rotation) > 1f)
         {
-            transform.rotation = RotateToDirection(towardsTarget: false);
-            transform.position += Time.deltaTime * _moveSpeed * transform.forward;
-        }
-        else if (Quaternion.Angle(transform.rotation, Quaternion.Euler(GetDirection(from: transform.position, to: Target.position))) < 1f)
-        {
-            transform.rotation = RotateToDirection(towardsTarget: true);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, maxDegreeDelta);
         }
     }
 
-    private void ArriveAtTarget()
+    private void SeekTarget()
     {
-        if (Vector3.Distance(transform.position, Target.position) < 2f) return;
-        transform.rotation = RotateToDirection(true);
-
-        _targetDirection = Target.position - transform.position;
-        float distance = _targetDirection.magnitude;
-
-        if (distance < _satisfactionRadius)
-            _targetDirection = _targetDirection.normalized * _moveSpeed * (distance / _satisfactionRadius);
-        else
-            _targetDirection = _targetDirection.normalized * _moveSpeed;
-        transform.position += transform.forward * _targetDirection.magnitude * Time.deltaTime;
+        RotateToDirection(GetDirectionToTarget(), _rotationSpeed * Time.deltaTime);
+        MoveToDirection(transform.forward, _moveSpeed * Time.deltaTime);
     }
 
-    private Vector3 GetDirection(Vector3 from, Vector3 to)
+    private void FleeTarget()
     {
-        Vector3 dir = to - from;
-        dir.y = 0;
-        return (dir).normalized;
+        Vector3 targetDirection = GetDirectionToTarget();
+
+        if (targetDirection.sqrMagnitude > _maxFleeDistance * _maxFleeDistance) 
+            return;
+
+        targetDirection = -1f * targetDirection.normalized;
+        RotateToDirection(targetDirection, _rotationSpeed * Time.deltaTime);
+        MoveToDirection(transform.forward, _moveSpeed * Time.deltaTime);
     }
 
-    private void OnDrawGizmosSelected()
+    private void ArriveTarget()
     {
-        if (Target == null) return;
-        Gizmos.color = Color.blue;
-        Gizmos.DrawLine(transform.position, Target.position);
+        Vector3 targetDirection = GetDirectionToTarget();
+        RotateToDirection(targetDirection, _rotationSpeed * Time.deltaTime);
+        float distanceToTarget = targetDirection.magnitude;
+        float targetVelocity = _moveSpeed * Time.deltaTime;
+
+        if (distanceToTarget <= _stoppingRadius)
+            return;
+        
+        else if (distanceToTarget < _arrivalRadius + _stoppingRadius)
+            targetVelocity *= distanceToTarget / _arrivalRadius;
+
+        MoveToDirection(transform.forward, targetVelocity);
     }
+
+
 }
