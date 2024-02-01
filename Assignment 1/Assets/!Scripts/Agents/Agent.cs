@@ -1,8 +1,5 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class Agent : MonoBehaviour
 {
@@ -15,9 +12,10 @@ public class Agent : MonoBehaviour
         Avoid = 4
     }
 
-    [SerializeField] private LayerMask _environmentLayer;    
+    [SerializeField] private LayerMask _environmentLayer;
     [Space, SerializeField] private float _moveSpeed = 5f;
     [SerializeField] private float _rotationSpeed = 65f;
+    [SerializeField] private float _satisfactionRadius = 5f;
 
     public Transform Target { get; set; }
     public bool AvoidObstacles { get; set; }
@@ -30,11 +28,11 @@ public class Agent : MonoBehaviour
 
     private void Update()
     {
-        if (Target == null || Vector3.Distance(transform.position, Target.position) < 0.1f) return;
+        if (Target == null) return;
 
         _agentStateBehaviour?.Invoke();
     }
-    
+
     public void SetState(AgentState agentState)
     {
         _currentState = agentState;
@@ -51,7 +49,8 @@ public class Agent : MonoBehaviour
 
     private void SeekToTarget()
     {
-        transform.SetPositionAndRotation(Time.deltaTime * _moveSpeed * transform.forward, RotateToDirection(towardsTarget: true));
+        Vector3 position = transform.position + (Time.deltaTime * _moveSpeed * transform.forward);
+        transform.SetPositionAndRotation(position, RotateToDirection(towardsTarget: true));
     }
 
     private Quaternion RotateToDirection(bool towardsTarget)
@@ -83,7 +82,17 @@ public class Agent : MonoBehaviour
 
     private void ArriveAtTarget()
     {
-        throw new NotImplementedException();
+        if (Vector3.Distance(transform.position, Target.position) < 2f) return;
+        transform.rotation = RotateToDirection(true);
+
+        _targetDirection = Target.position - transform.position;
+        float distance = _targetDirection.magnitude;
+
+        if (distance < _satisfactionRadius)
+            _targetDirection = _targetDirection.normalized * _moveSpeed * (distance / _satisfactionRadius);
+        else
+            _targetDirection = _targetDirection.normalized * _moveSpeed;
+        transform.position += transform.forward * _targetDirection.magnitude * Time.deltaTime;
     }
 
     private Vector3 GetDirection(Vector3 from, Vector3 to)
