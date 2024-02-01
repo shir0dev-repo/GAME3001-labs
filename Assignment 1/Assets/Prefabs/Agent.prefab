@@ -136,6 +136,9 @@ MonoBehaviour:
   _environmentLayer:
     serializedVersion: 2
     m_Bits: 8
+  _whiskerCount: 4
+  _whiskerLength: 2
+  _whiskerMaxAngle: 135
 --- !u!1 &2522518111264451604
 GameObject:
   m_ObjectHideFlags: 0

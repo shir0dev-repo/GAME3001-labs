@@ -126,8 +126,7 @@ public class AgentManager : MonoBehaviour
 
     private void StartAvoidanceSeek()
     {
-        _agent.AvoidObstacles = true;
-        StartSeek();
+        _agent.SetState(Agent.AgentState.Avoid);
     }
 
     private void ToggleObstacles(bool toggle)

@@ -27,9 +27,11 @@ public class Agent : MonoBehaviour
 
     [Header("Avoidance")]
     [SerializeField] private LayerMask _environmentLayer;
+    [SerializeField] int _whiskerCount = 4;
+    [SerializeField] float _whiskerLength = 1f;
+    [SerializeField, Range(90, 360)] float _whiskerMaxAngle = 90f;
 
     public Transform Target { get; set; }
-    public bool AvoidObstacles { get; set; }
 
     private void Update()
     {
@@ -46,6 +48,7 @@ public class Agent : MonoBehaviour
             AgentState.Seek => SeekTarget,
             AgentState.Flee => FleeTarget,
             AgentState.Arrival => ArriveTarget,
+            AgentState.Avoid => AvoidObstacles,
             _ => null
         };
     }
@@ -120,5 +123,17 @@ public class Agent : MonoBehaviour
         MoveToDirection(transform.forward, targetVelocity);
     }
 
+    private void AvoidObstacles()
+    {
+        Vector3 targetDirection = GetDirectionToTarget();
+        float angleIncrement = _whiskerMaxAngle / _whiskerCount;
+        float currentAngle = (-_whiskerMaxAngle / 2f) + angleIncrement / 2f;
 
+        for (int i = 0; i < _whiskerCount; i++)
+        {
+            Vector3 dir = Quaternion.Euler(0, currentAngle, 0) * targetDirection;
+            Debug.DrawRay(transform.position, dir.normalized * _whiskerLength, Color.red);
+            currentAngle += angleIncrement;
+        }
+    }
 }
