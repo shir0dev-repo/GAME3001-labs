@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -18,10 +16,6 @@ public class AgentManager : MonoBehaviour
     private Transform _target;
     private Agent _agent;
     private Transform _obstacle;
-
-    public Transform AgentTransform => _agent.transform;
-    public Transform TargetTransform => _target.transform;
-    public Transform ObstacleTransform => _obstacle.transform;
 
     private void Awake()
     {
@@ -47,9 +41,7 @@ public class AgentManager : MonoBehaviour
         _obstacle = Instantiate(_obstaclePrefab).transform;
         _agent.Target = _target;
 
-        _target.gameObject.SetActive(false);
-        _agent.gameObject.SetActive(false);
-        _obstacle.gameObject.SetActive(false);
+        DisableActors();
     }
 
     private void HandleStateChange(InputAction.CallbackContext context)
@@ -57,13 +49,9 @@ public class AgentManager : MonoBehaviour
         ToggleObstacles(false);
 
         Agent.AgentState behaviourState = (Agent.AgentState)(int)context.ReadValue<float>();
-        Debug.Log(behaviourState.ToString());
 
         switch (behaviourState)
         {
-            case Agent.AgentState.Idle:
-                DisableActors();
-                break;
             case Agent.AgentState.Seek:
                 StartSeek();
                 break;
@@ -71,27 +59,27 @@ public class AgentManager : MonoBehaviour
                 StartFlee();
                 break;
             case Agent.AgentState.Arrival:
-                StartArrival();
+                StartSeek();
                 break;
             case Agent.AgentState.Avoid:
                 ToggleObstacles(true);
-                StartAvoidanceSeek();
+                StartSeek();
+                _obstacle.right = Vector3.Cross(_target.position - _agent.transform.position, Vector3.up);
                 break;
             default:
                 DisableActors();
                 break;
         }
+
+        _agent.SetState(behaviourState);
     }
 
     private void StartSeek()
     {
-        Vector3[] positions = GetPointsAlongCircle(transform.position, _spawnRadius);
-        _agent.transform.position = positions[Random.Range(0, 36)];
+        _agent.transform.position = GetRandomPointAlongCircle(transform.position, _spawnRadius);
         _target.position = Vector3.Reflect(-_agent.transform.position, Vector3.up);
 
-        _agent.transform.rotation = Quaternion.LookRotation(Quaternion.Euler(0, 60, 0) * (_target.position -  _agent.transform.position), Vector3.up);
-
-        _agent.SetState(Agent.AgentState.Seek);
+        _agent.transform.rotation = Quaternion.LookRotation(Quaternion.Euler(0, 60, 0) * (_target.position - _agent.transform.position), Vector3.up);
 
         _agent.gameObject.SetActive(true);
         _target.gameObject.SetActive(true);
@@ -100,25 +88,8 @@ public class AgentManager : MonoBehaviour
     private void StartFlee()
     {
         _target.position = Vector3.zero;
-        Vector3[] positions = GetPointsAlongCircle(_target.position, 5);
-        _agent.transform.position = positions[Random.Range(0, 36)];
+        _agent.transform.position = GetRandomPointAlongCircle(transform.position, _spawnRadius);
         _agent.transform.LookAt(_target.position + transform.position, Vector3.up);
-
-        _agent.SetState(Agent.AgentState.Flee);
-
-        _agent.gameObject.SetActive(true);
-        _target.gameObject.SetActive(true);
-    }
-
-    private void StartArrival()
-    {
-        Vector3[] positions = GetPointsAlongCircle(transform.position, _spawnRadius);
-        _agent.transform.position = positions[Random.Range(0, 36)];
-        _target.position = Vector3.Reflect(-_agent.transform.position, Vector3.up);
-
-        _agent.transform.rotation = Quaternion.LookRotation(Quaternion.Euler(0, 60, 0) * (_target.position - _agent.transform.position), Vector3.up);
-
-        _agent.SetState(Agent.AgentState.Arrival);
 
         _agent.gameObject.SetActive(true);
         _target.gameObject.SetActive(true);
@@ -130,8 +101,6 @@ public class AgentManager : MonoBehaviour
         _agent.transform.rotation = Quaternion.Euler(0, -90f, 0);
         _target.transform.position = new(8, 0, 7);
 
-        _agent.SetState(Agent.AgentState.Avoid);
-        
         _agent.gameObject.SetActive(true);
         _target.gameObject.SetActive(true);
     }
@@ -143,10 +112,17 @@ public class AgentManager : MonoBehaviour
 
     private void DisableActors()
     {
-        _obstacle.gameObject.SetActive(!_agent.gameObject.activeSelf);
+        _obstacle.gameObject.SetActive(false);
         _target.gameObject.SetActive(false);
         _agent.gameObject.SetActive(false);
         _agent.SetState(Agent.AgentState.Idle);
+    }
+
+    private Vector3 GetRandomPointAlongCircle(Vector3 center, float radius)
+    {
+        Vector3 point = center + Vector3.forward * radius;
+        Quaternion randomRotation = Quaternion.Euler(0, Random.Range(0, 360), 0);
+        return randomRotation * point;
     }
 
     private Vector3[] GetPointsAlongCircle(Vector3 center, float radius)
@@ -161,7 +137,7 @@ public class AgentManager : MonoBehaviour
         return points;
     }
 
-    private void OnDrawGizmosSelected()
+    private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawLineList(GetPointsAlongCircle(transform.position, _spawnRadius));

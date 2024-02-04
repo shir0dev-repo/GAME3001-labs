@@ -132,13 +132,13 @@ MonoBehaviour:
   _rotationSpeed: 60
   _maxFleeDistance: 8.5
   _arrivalRadius: 5
-  _stoppingRadius: 0.75
+  _stoppingRadius: 1.25
   _environmentLayer:
     serializedVersion: 2
     m_Bits: 8
-  _whiskerCount: 4
+  _whiskerCount: 5
   _whiskerLength: 3
-  _whiskerMaxAngle: 135
+  _whiskerMaxAngle: 120
   _avoidanceWeight: 2
 --- !u!1 &2522518111264451604
 GameObject:

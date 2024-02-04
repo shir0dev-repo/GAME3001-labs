@@ -100,7 +100,7 @@ public class Agent : MonoBehaviour
     {
         Vector3 targetDirection = GetDirectionToTarget();
 
-        if (targetDirection.sqrMagnitude > _maxFleeDistance * _maxFleeDistance) 
+        if (targetDirection.sqrMagnitude > _maxFleeDistance * _maxFleeDistance)
             return;
 
         targetDirection = -1f * targetDirection.normalized;
@@ -117,7 +117,7 @@ public class Agent : MonoBehaviour
 
         if (distanceToTarget <= _stoppingRadius)
             return;
-        
+
         else if (distanceToTarget < _arrivalRadius + _stoppingRadius)
             targetVelocity *= distanceToTarget / _arrivalRadius;
 
@@ -133,15 +133,18 @@ public class Agent : MonoBehaviour
     private void AvoidObstacles()
     {
         float angleIncrement = _whiskerMaxAngle / _whiskerCount;
-        float currentAngle = (-_whiskerMaxAngle / 2f) + angleIncrement / 2f;
+        float initialAngle = (-_whiskerMaxAngle / 2f) + angleIncrement / 2f;
+        float currentAngle = initialAngle;
         float targetRotation = 0;
-        
+
 
         for (int i = 0; i < _whiskerCount; i++)
         {
             if (CastWhisker(currentAngle, out Vector3 whiskerDirection))
             {
-                targetRotation -= Vector3.SignedAngle(transform.forward, whiskerDirection, Vector3.up) * _avoidanceWeight;
+                float whiskerAngle = Vector3.SignedAngle(transform.forward, whiskerDirection, Vector3.up);
+
+                targetRotation -= whiskerAngle;
             }
 
             currentAngle += angleIncrement;
