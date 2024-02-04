@@ -5,14 +5,8 @@ public class CameraController : MonoBehaviour
 {
     [SerializeField] private Transform _cameraArm;
     [SerializeField] private Transform _cameraPivot;
-    [SerializeField] private Transform _cameraTarget;
     [Space]
     [SerializeField] private float _panSpeed;
-
-    private void Awake()
-    {
-        _cameraPivot.LookAt(_cameraTarget);
-    }
 
     private void LateUpdate()
     {

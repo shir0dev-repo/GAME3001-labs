@@ -48,7 +48,7 @@ public class Agent : MonoBehaviour
             AgentState.Seek => SeekTarget,
             AgentState.Flee => FleeTarget,
             AgentState.Arrival => ArriveTarget,
-            AgentState.Avoid => AvoidObstacles,
+            AgentState.Avoid => HandleAvoidance,
             _ => null
         };
     }
@@ -123,17 +123,45 @@ public class Agent : MonoBehaviour
         MoveToDirection(transform.forward, targetVelocity);
     }
 
+    private void HandleAvoidance()
+    {
+        SeekTarget();
+        AvoidObstacles();
+    }
+
     private void AvoidObstacles()
     {
-        Vector3 targetDirection = GetDirectionToTarget();
         float angleIncrement = _whiskerMaxAngle / _whiskerCount;
         float currentAngle = (-_whiskerMaxAngle / 2f) + angleIncrement / 2f;
+        float targetRotation = 0;
+        
 
         for (int i = 0; i < _whiskerCount; i++)
         {
-            Vector3 dir = Quaternion.Euler(0, currentAngle, 0) * targetDirection;
-            Debug.DrawRay(transform.position, dir.normalized * _whiskerLength, Color.red);
+            if (CastWhisker(currentAngle, out Vector3 whiskerDirection))
+            {
+                
+            }
+
             currentAngle += angleIncrement;
         }
+
+        transform.Rotate(0, targetRotation, 0);
+    }
+
+    private bool CastWhisker(float angle, out Vector3 whiskerDirection)
+    {
+        Color rayColor = Color.red;
+
+        // Cast whiskers to detect obstacles.
+        whiskerDirection = Quaternion.Euler(0, angle, 0) * transform.forward;
+
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, whiskerDirection, _whiskerLength, _environmentLayer);
+
+        if (hit.collider != null)
+            rayColor = Color.green;
+
+        Debug.DrawRay(transform.position, whiskerDirection * _whiskerLength, rayColor);
+        return hit.collider != null;
     }
 }
