@@ -126,7 +126,14 @@ public class AgentManager : MonoBehaviour
 
     private void StartAvoidanceSeek()
     {
+        _agent.transform.position = new(8, 0, -7);
+        _agent.transform.rotation = Quaternion.Euler(0, -90f, 0);
+        _target.transform.position = new(8, 0, 7);
+
         _agent.SetState(Agent.AgentState.Avoid);
+        
+        _agent.gameObject.SetActive(true);
+        _target.gameObject.SetActive(true);
     }
 
     private void ToggleObstacles(bool toggle)

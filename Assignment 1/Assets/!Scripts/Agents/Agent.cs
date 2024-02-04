@@ -30,6 +30,7 @@ public class Agent : MonoBehaviour
     [SerializeField] int _whiskerCount = 4;
     [SerializeField] float _whiskerLength = 1f;
     [SerializeField, Range(90, 360)] float _whiskerMaxAngle = 90f;
+    [SerializeField] private float _avoidanceWeight = 2f;
 
     public Transform Target { get; set; }
 
@@ -125,7 +126,7 @@ public class Agent : MonoBehaviour
 
     private void HandleAvoidance()
     {
-        SeekTarget();
+        ArriveTarget();
         AvoidObstacles();
     }
 
@@ -140,28 +141,27 @@ public class Agent : MonoBehaviour
         {
             if (CastWhisker(currentAngle, out Vector3 whiskerDirection))
             {
-                
+                targetRotation -= Vector3.SignedAngle(transform.forward, whiskerDirection, Vector3.up) * _avoidanceWeight;
             }
 
             currentAngle += angleIncrement;
         }
 
-        transform.Rotate(0, targetRotation, 0);
+        transform.Rotate(Vector3.up, _avoidanceWeight * targetRotation * Time.deltaTime);
     }
 
     private bool CastWhisker(float angle, out Vector3 whiskerDirection)
     {
         Color rayColor = Color.red;
 
-        // Cast whiskers to detect obstacles.
         whiskerDirection = Quaternion.Euler(0, angle, 0) * transform.forward;
 
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, whiskerDirection, _whiskerLength, _environmentLayer);
+        Physics.Raycast(new Ray(transform.position + Vector3.up * 0.5f, whiskerDirection), out RaycastHit hit, _whiskerLength, _environmentLayer);
 
         if (hit.collider != null)
             rayColor = Color.green;
 
-        Debug.DrawRay(transform.position, whiskerDirection * _whiskerLength, rayColor);
+        Debug.DrawRay(transform.position + Vector3.up * 0.5f, whiskerDirection * _whiskerLength, rayColor);
         return hit.collider != null;
     }
 }

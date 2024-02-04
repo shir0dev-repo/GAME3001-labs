@@ -137,8 +137,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   _whiskerCount: 4
-  _whiskerLength: 2
+  _whiskerLength: 3
   _whiskerMaxAngle: 135
+  _avoidanceWeight: 2
 --- !u!1 &2522518111264451604
 GameObject:
   m_ObjectHideFlags: 0
