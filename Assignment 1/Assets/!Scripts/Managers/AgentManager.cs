@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-
+using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
 public class AgentManager : MonoBehaviour
@@ -17,15 +17,9 @@ public class AgentManager : MonoBehaviour
     private Agent _agent;
     private Transform _obstacle;
 
-    private void Awake()
-    {
-        Setup();
-    }
-
     private void OnEnable()
     {
         _agentStateAction.started += HandleStateChange;
-        _agentStateAction.Enable();
     }
 
     private void OnDisable()
@@ -34,8 +28,9 @@ public class AgentManager : MonoBehaviour
         _agentStateAction.Disable();
     }
 
-    private void Setup()
+    public void Setup()
     {
+        _agentStateAction.Enable();
         _agent = Instantiate(_agentPrefab).GetComponent<Agent>();
         _target = Instantiate(_targetPrefab).transform;
         _obstacle = Instantiate(_obstaclePrefab).transform;
@@ -63,8 +58,8 @@ public class AgentManager : MonoBehaviour
                 break;
             case Agent.AgentState.Avoid:
                 ToggleObstacles(true);
-                StartSeek();
-                _obstacle.right = Vector3.Cross(_target.position - _agent.transform.position, Vector3.up);
+                StartAvoidanceSeek();
+                //_obstacle.right = Vector3.Cross(_target.position - _agent.transform.position, Vector3.up);
                 break;
             default:
                 DisableActors();
@@ -135,11 +130,5 @@ public class AgentManager : MonoBehaviour
         }
 
         return points;
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawLineList(GetPointsAlongCircle(transform.position, _spawnRadius));
     }
 }

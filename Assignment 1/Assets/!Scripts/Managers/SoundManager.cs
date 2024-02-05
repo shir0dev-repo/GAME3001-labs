@@ -7,7 +7,7 @@ public class SoundManager : MonoBehaviour
     private AudioSource _musicSource;
     private AudioSource _sfxSource;
 
-    private float _volume = 0.3f;
+    private float _volume = 0.1f;
 
     private void Awake()
     {

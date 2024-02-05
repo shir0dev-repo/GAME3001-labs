@@ -133,23 +133,25 @@ public class Agent : MonoBehaviour
     private void AvoidObstacles()
     {
         float angleIncrement = _whiskerMaxAngle / _whiskerCount;
-        float initialAngle = (-_whiskerMaxAngle / 2f) + angleIncrement / 2f;
-        float currentAngle = initialAngle;
+        float currentAngle = (-_whiskerMaxAngle / 2f) + angleIncrement / 2f;
         float targetRotation = 0;
-
+        bool obstacleFound = false;
 
         for (int i = 0; i < _whiskerCount; i++)
         {
             if (CastWhisker(currentAngle, out Vector3 whiskerDirection))
             {
-                float whiskerAngle = Vector3.SignedAngle(transform.forward, whiskerDirection, Vector3.up);
+                obstacleFound = true;
+                targetRotation -= Vector3.SignedAngle(transform.forward, whiskerDirection, Vector3.up);
 
-                targetRotation -= whiskerAngle;
             }
 
             currentAngle += angleIncrement;
         }
 
+        if (obstacleFound && Mathf.Approximately(targetRotation, 0.0f))
+            targetRotation += 45f;
+        
         transform.Rotate(Vector3.up, _avoidanceWeight * targetRotation * Time.deltaTime);
     }
 
