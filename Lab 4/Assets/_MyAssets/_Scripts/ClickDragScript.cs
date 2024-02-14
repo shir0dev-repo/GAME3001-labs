@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ClickDragScript : MonoBehaviour
@@ -11,49 +9,40 @@ public class ClickDragScript : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0) && !isDragging)
-        {
-            // Raycast to check if the mouse is over a collider.
-            RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+        StartDrag(Input.GetMouseButtonDown(0));
 
-            if (hit.collider != null)
-            {
-                // Check if the clicked GameObject has a Rigidbody2D.
-                Rigidbody2D rb2d = hit.collider.GetComponent<Rigidbody2D>();
-                if (rb2d != null)
-                {
-                    // Start dragging only if no object is currently being dragged.
-                    isDragging = true;
-                    currentlyDraggedObject = rb2d;
-                    //offset = rb2d.transform.position - Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                    if (currentlyDraggedObject.CompareTag("Mines") ||
-                        currentlyDraggedObject.CompareTag("Ship") ||
-                        currentlyDraggedObject.CompareTag("Planet"))
-                    {
-                        Vector2 tileIndex = currentlyDraggedObject.gameObject.GetComponent<NavigationObject>().GetGridIndex();
-                        GridManager.Instance.GetGrid()[(int)tileIndex.y, (int)tileIndex.x].GetComponent<TileScript>().SetStatus(TileStatus.UNVISITED);
-                    }
-                }
-            }
-        }
-        else if (Input.GetMouseButtonUp(0))
+        if (Input.GetMouseButtonUp(0))
         {
             if (!isDragging) return;
 
-            Vector2 tileIndex = currentlyDraggedObject.gameObject.GetComponent<NavigationObject>().GetGridIndex();
-            if(currentlyDraggedObject.CompareTag("Mines"))
-                GridManager.Instance.GetGrid()[(int)tileIndex.y, (int)tileIndex.x].GetComponent<TileScript>().SetStatus(TileStatus.IMPASSABLE);
-            else if (currentlyDraggedObject.CompareTag("Ship"))
-                GridManager.Instance.GetGrid()[(int)tileIndex.y, (int)tileIndex.x].GetComponent<TileScript>().SetStatus(TileStatus.START);
-            else if (currentlyDraggedObject.CompareTag("Planet"))
+            string objTag = currentlyDraggedObject.tag;
+
+            TileStatus draggedObjectStatus = objTag switch
             {
-                GridManager.Instance.SetTileCosts(currentlyDraggedObject.GetComponent<NavigationObject>().GetGridIndex());
-                GridManager.Instance.GetGrid()[(int)tileIndex.y, (int)tileIndex.x].GetComponent<TileScript>().SetStatus(TileStatus.GOAL);
+                "Mines" => TileStatus.IMPASSABLE,
+                "Ship" => TileStatus.START,
+                "Planet" => TileStatus.GOAL,
+                _ => TileStatus.UNVISITED
+            };
+
+            Vector2 tileIndex = currentlyDraggedObject.gameObject.GetComponent<NavigationObject>().GetGridIndex();
+            GridManager.Instance.GetGrid()[(int)tileIndex.y, (int)tileIndex.x].GetComponent<TileScript>().SetStatus(draggedObjectStatus);
+
+            if (draggedObjectStatus == TileStatus.START)
+                GridManager.Instance.SetTileCosts(tileIndex);
+
+            foreach (GameObject node in GridManager.Instance.GetGrid())
+            {
+                TileScript ts = node.GetComponent<TileScript>();
+
+                if (ts.status != TileStatus.IMPASSABLE && ts.status != TileStatus.GOAL && ts.status != TileStatus.START)
+                    ts.SetStatus(TileStatus.UNVISITED);
             }
 
             isDragging = false;
             currentlyDraggedObject = null;
         }
+
         if (isDragging && currentlyDraggedObject != null)
         {
             if (!lockToGrid) // Note the new selection structure for lock to grid.
@@ -70,5 +59,24 @@ public class ClickDragScript : MonoBehaviour
 
             currentlyDraggedObject.GetComponent<NavigationObject>().SetGridIndex();
         }
+    }
+
+    private void StartDrag(bool mouseClicked)
+    {
+        if (!mouseClicked || isDragging) return;
+
+
+        RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+
+        if (hit.collider == null) return;
+        if (!hit.collider.TryGetComponent(out Rigidbody2D rb2d)) return;
+
+        isDragging = true;
+        currentlyDraggedObject = rb2d;
+
+        if (currentlyDraggedObject.tag is not "Mines" or "Ship" or "Planet") return;
+
+        Vector2 tileIndex = currentlyDraggedObject.gameObject.GetComponent<NavigationObject>().GetGridIndex();
+        GridManager.Instance.GetGrid()[(int)tileIndex.y, (int)tileIndex.x].GetComponent<TileScript>().SetStatus(TileStatus.UNVISITED);
     }
 }

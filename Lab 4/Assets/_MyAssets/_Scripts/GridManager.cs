@@ -84,6 +84,7 @@ public class GridManager : MonoBehaviour
             {
                 Vector2 mineIndex = mine.GetComponent<NavigationObject>().GetGridIndex();
                 _grid[(int)mineIndex.y, (int)mineIndex.x].GetComponent<TileScript>().SetStatus(TileStatus.UNVISITED);
+                Destroy(mine);
             }
 
             _mines.Clear();
@@ -101,18 +102,20 @@ public class GridManager : MonoBehaviour
             float colPos = -7.5f;
             for (int col = 0; col < cols; col++, colPos++)
             {
-                GameObject tileInst = Instantiate(_tilePrefab, new(colPos, rowPos, 0), Quaternion.identity);
-                TileScript tileScript = tileInst.GetComponent<TileScript>();
+                TileScript tileScript = Instantiate(_tilePrefab, new(colPos, rowPos, 0), Quaternion.identity).GetComponent<TileScript>();
+                
                 tileScript.SetColor(_colors[System.Convert.ToInt32(count++ % 2 == 0)]);
-                tileInst.transform.SetParent(transform);
-                _grid[row, col] = tileInst;
+                tileScript.SetStatus(TileStatus.UNVISITED);
 
-                GameObject panelInst = Instantiate(_tilePanelPrefab, tileInst.transform.position, Quaternion.identity);
-                RectTransform panelTransform = panelInst.GetComponent<RectTransform>();
-                panelInst.transform.SetParent(_panelParent.transform);
+                tileScript.transform.SetParent(transform);
+                _grid[row, col] = tileScript.gameObject;
+
+                RectTransform panelTransform = Instantiate(_tilePanelPrefab, tileScript.transform.position, Quaternion.identity).GetComponent<RectTransform>();
+                
+                panelTransform.transform.SetParent(_panelParent.transform);
                 panelTransform.localScale = Vector3.one;
                 panelTransform.anchoredPosition = new Vector3(64 * col, -64 * row);
-                tileScript.TilePanel = panelInst.GetComponent<TilePanel>();
+                tileScript.TilePanel = panelTransform.GetComponent<TilePanel>();
             }
             count--;
         }
@@ -152,7 +155,6 @@ public class GridManager : MonoBehaviour
         return _grid;
     }
 
-    // The following utility function creates the snapping to the center of a tile.
     public Vector2 GetGridPosition(Vector2 worldPosition)
     {
         float xPos = Mathf.Floor(worldPosition.x) + 0.5f;
@@ -162,9 +164,9 @@ public class GridManager : MonoBehaviour
 
     public void SetTileCosts(Vector2 targetIndices)
     {
-        float distance = 0;
-        float dx = 0;
-        float dy = 0;
+        float distance;
+        float dx;
+        float dy;
 
         for (int row = 0; row < rows; row++)
         {
@@ -180,8 +182,8 @@ public class GridManager : MonoBehaviour
                 }
                 else // euclidean distance
                 {
-                    dx = targetIndices.x - col;
-                    dy = targetIndices.y - row;
+                    dx = col - targetIndices.x;
+                    dy = row - targetIndices.y;
 
                     distance = Mathf.Sqrt(dx * dx + dy * dy);
                 }
