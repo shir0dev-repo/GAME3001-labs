@@ -13,37 +13,7 @@ public class ClickDragScript : MonoBehaviour
 
         HandleDrag();
 
-        if (Input.GetMouseButtonUp(0))
-        {
-            if (!isDragging) return;
-
-            string objTag = currentlyDraggedObject.tag;
-
-            TileStatus draggedObjectStatus = objTag switch
-            {
-                "Mines" => TileStatus.IMPASSABLE,
-                "Ship" => TileStatus.START,
-                "Planet" => TileStatus.GOAL,
-                _ => TileStatus.UNVISITED
-            };
-
-            Vector2 tileIndex = currentlyDraggedObject.gameObject.GetComponent<NavigationObject>().GetGridIndex();
-            GridManager.Instance.GetGrid()[(int)tileIndex.y, (int)tileIndex.x].GetComponent<TileScript>().SetStatus(draggedObjectStatus);
-
-            if (draggedObjectStatus == TileStatus.START)
-                GridManager.Instance.SetTileCosts(tileIndex);
-
-            foreach (GameObject node in GridManager.Instance.GetGrid())
-            {
-                TileScript ts = node.GetComponent<TileScript>();
-
-                if (ts.status != TileStatus.IMPASSABLE && ts.status != TileStatus.GOAL && ts.status != TileStatus.START)
-                    ts.SetStatus(TileStatus.UNVISITED);
-            }
-
-            isDragging = false;
-            currentlyDraggedObject = null;
-        }        
+        EndDrag(Input.GetMouseButtonUp(0));
     }
 
     private void StartDrag(bool mouseClicked)
@@ -75,4 +45,35 @@ public class ClickDragScript : MonoBehaviour
         currentlyDraggedObject.GetComponent<NavigationObject>().SetGridIndex();
     }
 
+    private void EndDrag(bool mouseReleased)
+    {
+        if (!mouseReleased || !isDragging) return;
+
+        TileStatus draggedObjectStatus = currentlyDraggedObject.tag switch
+        {
+            "Mines" => TileStatus.IMPASSABLE,
+            "Ship" => TileStatus.START,
+            "Planet" => TileStatus.GOAL,
+            _ => TileStatus.UNVISITED
+        };
+
+        Vector2 tileIndex = currentlyDraggedObject.gameObject.GetComponent<NavigationObject>().GetGridIndex();
+        GridManager.Instance.GetGrid()[(int)tileIndex.y, (int)tileIndex.x].GetComponent<TileScript>().SetStatus(draggedObjectStatus);
+
+        if (draggedObjectStatus == TileStatus.START)
+            GridManager.Instance.SetTileCosts(tileIndex);
+
+        foreach (GameObject node in GridManager.Instance.GetGrid())
+        {
+            TileScript ts = node.GetComponent<TileScript>();
+
+            if (ts.status is TileStatus.IMPASSABLE or TileStatus.GOAL or TileStatus.START)
+                continue;
+
+            ts.SetStatus(TileStatus.UNVISITED);
+        }
+
+        isDragging = false;
+        currentlyDraggedObject = null;
+    }
 }
