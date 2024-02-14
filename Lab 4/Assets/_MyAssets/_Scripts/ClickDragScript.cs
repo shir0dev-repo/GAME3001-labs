@@ -11,6 +11,8 @@ public class ClickDragScript : MonoBehaviour
     {
         StartDrag(Input.GetMouseButtonDown(0));
 
+        HandleDrag();
+
         if (Input.GetMouseButtonUp(0))
         {
             if (!isDragging) return;
@@ -41,30 +43,12 @@ public class ClickDragScript : MonoBehaviour
 
             isDragging = false;
             currentlyDraggedObject = null;
-        }
-
-        if (isDragging && currentlyDraggedObject != null)
-        {
-            if (!lockToGrid) // Note the new selection structure for lock to grid.
-            {
-                // Move the dragged GameObject normally based on the mouse position.
-                Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                currentlyDraggedObject.MovePosition(mousePosition + offset);
-            }
-            else
-            {
-                Vector2 gridPosition = GridManager.Instance.GetGridPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-                currentlyDraggedObject.MovePosition(gridPosition);
-            }
-
-            currentlyDraggedObject.GetComponent<NavigationObject>().SetGridIndex();
-        }
+        }        
     }
 
     private void StartDrag(bool mouseClicked)
     {
         if (!mouseClicked || isDragging) return;
-
 
         RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
 
@@ -74,9 +58,21 @@ public class ClickDragScript : MonoBehaviour
         isDragging = true;
         currentlyDraggedObject = rb2d;
 
-        if (currentlyDraggedObject.tag is not "Mines" or "Ship" or "Planet") return;
+        if (!currentlyDraggedObject.TryGetComponent(out NavigationObject navObject)) return;
 
-        Vector2 tileIndex = currentlyDraggedObject.gameObject.GetComponent<NavigationObject>().GetGridIndex();
+        Vector2 tileIndex = navObject.GetGridIndex();
         GridManager.Instance.GetGrid()[(int)tileIndex.y, (int)tileIndex.x].GetComponent<TileScript>().SetStatus(TileStatus.UNVISITED);
     }
+    private void HandleDrag()
+    {
+        if (!isDragging || currentlyDraggedObject == null) return;
+
+        Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 movePosition = lockToGrid ? GridManager.Instance.GetGridPosition(Camera.main.ScreenToWorldPoint(Input.mousePosition)) : mousePosition + offset;
+
+        currentlyDraggedObject.MovePosition(movePosition);
+
+        currentlyDraggedObject.GetComponent<NavigationObject>().SetGridIndex();
+    }
+
 }
