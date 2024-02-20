@@ -11,6 +11,16 @@ public class TileScript : MonoBehaviour
     public TileStatus status = TileStatus.UNVISITED;
     public float cost = 999.9f;
     
+    public PathNode Node { get; set; }
+
+    public void ResetNeighbourConnections()
+    {
+        neighbourTiles = new GameObject[4];
+        Node.Connections.Clear();
+    }
+
+    public PathNode GetNeighbourTileNode(int index) => neighbourTiles[index].GetComponent<TileScript>().Node;
+
     public void SetNeighbourTile(int index, GameObject tile)
     {
         neighbourTiles[index] = tile;
@@ -35,9 +45,11 @@ public class TileScript : MonoBehaviour
                 tilePanel.statusText.text = "U";
                 break;
             case TileStatus.OPEN:
+                gameObject.GetComponent<SpriteRenderer>().color = original;
                 tilePanel.statusText.text = "O";
                 break;
             case TileStatus.CLOSED:
+                gameObject.GetComponent<SpriteRenderer>().color = original;
                 tilePanel.statusText.text = "C";
                 break;
             case TileStatus.IMPASSABLE:
@@ -51,6 +63,10 @@ public class TileScript : MonoBehaviour
             case TileStatus.START:
                 gameObject.GetComponent<SpriteRenderer>().color = new Color(0f, 0.5f, 0f, 0.5f);
                 tilePanel.statusText.text = "S";
+                break;
+            case TileStatus.PATH:
+                gameObject.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0.5f);
+                tilePanel.statusText.text = "P";
                 break;
         }
     }
