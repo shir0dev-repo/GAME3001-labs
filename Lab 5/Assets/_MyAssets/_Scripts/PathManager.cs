@@ -111,5 +111,15 @@ public class PathManager : MonoBehaviour
         return false;
     }
 
+    public NodeRecord GetNodeRecord(List<NodeRecord> nodeRecords, PathNode node)
+    {
+        foreach(NodeRecord record in nodeRecords)
+        {
+            if (record.Node == node) return record;
+        }
+
+        return null;
+    }
+
     #endregion
 }
