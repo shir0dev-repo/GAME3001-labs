@@ -43,6 +43,7 @@ public class ClickDragScript : MonoBehaviour
             if (currentlyDraggedObject.gameObject.tag == "Mines") // We've released a mines tile.
             { 
                 GridManager.Instance.GetGrid()[(int)tileIndex.y, (int)tileIndex.x].GetComponent<TileScript>().SetStatus(TileStatus.IMPASSABLE);
+                GridManager.Instance.ConnectGrid();
             }
             else if (currentlyDraggedObject.gameObject.tag == "Ship") // We've released a ship tile.
             {
