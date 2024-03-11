@@ -7,7 +7,7 @@ public class PathNode
 {
     public GameObject Tile { get; private set; }
     public List<PathConnection> connections;
-    
+
     public PathNode(GameObject tile)
     {
         Tile = tile;
@@ -34,7 +34,7 @@ public class PathConnection
     }
 }
 public class NodeRecord
-{ 
+{
     public PathNode Node { get; set; }
     public NodeRecord FromRecord { get; set; }
     public PathConnection PathConnection { get; set; }
@@ -118,6 +118,7 @@ public class PathManager : MonoBehaviour
                     endNodeRecord = new NodeRecord();
                     endNodeRecord.Node = endNode;
                 }
+
                 endNodeRecord.CostSoFar = endNodeCost;
                 endNodeRecord.PathConnection = connections[i];
                 endNodeRecord.FromRecord = currentRecord;
@@ -127,6 +128,7 @@ public class PathManager : MonoBehaviour
                     endNodeRecord.Node.Tile.GetComponent<TileScript>().SetStatus(TileStatus.CLOSED);
                 }
             }
+
             openList.Remove(currentRecord);
             closedList.Add(currentRecord);
             currentRecord.Node.Tile.GetComponent<TileScript>().SetStatus(TileStatus.CLOSED);

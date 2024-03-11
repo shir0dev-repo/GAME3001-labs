@@ -31,7 +31,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private Color[] colors;
     [SerializeField] private float baseTileCost = 1f;
     [SerializeField] private bool useManhattanHeuristic = true;
-    
+
     private GameObject[,] grid;
     private int rows = 12;
     private int columns = 16;
@@ -56,14 +56,14 @@ public class GridManager : MonoBehaviour
     {
         BuildGrid();
         // TODO: Comment out for Lab 6a.
-        //ConnectGrid();
+        ConnectGrid();
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.G))
         {
-            foreach(Transform child in transform)
+            foreach (Transform child in transform)
                 child.gameObject.SetActive(!child.gameObject.activeSelf);
             panelParent.gameObject.SetActive(!panelParent.gameObject.activeSelf);
         }
@@ -83,7 +83,7 @@ public class GridManager : MonoBehaviour
             foreach (GameObject mine in mines)
             {
                 Vector2 mineIndex = mine.GetComponent<NavigationObject>().GetGridIndex();
-                GameObject tileInst = GameObject.Instantiate(tilePrefab, 
+                GameObject tileInst = GameObject.Instantiate(tilePrefab,
                     new Vector3(mine.transform.position.x, mine.transform.position.y, 0f), Quaternion.identity);
                 tileInst.transform.parent = transform;
                 grid[(int)mineIndex.y, (int)mineIndex.x] = tileInst;
@@ -128,7 +128,7 @@ public class GridManager : MonoBehaviour
                 //TileScript tileScript = tileInst.GetComponent<TileScript>();
                 //tileScript.SetColor(colors[System.Convert.ToInt32((count++ % 2 == 0))]);
                 tileInst.transform.parent = transform;
-                grid[row,col] = tileInst;
+                grid[row, col] = tileInst;
                 // TODO: Commented out for Lab 6a.
                 // Instantiate a new TilePanel and link it to the Tile instance.
                 //GameObject panelInst = GameObject.Instantiate(tilePanelPrefab, tilePanelPrefab.transform.position, Quaternion.identity);
