@@ -56,7 +56,7 @@ public class GridManager : MonoBehaviour
     {
         BuildGrid();
         // TODO: Comment out for Lab 6a.
-        ConnectGrid();
+        //ConnectGrid();
     }
 
     void Update()
@@ -156,7 +156,7 @@ public class GridManager : MonoBehaviour
     }
 
     // TODO: Comment out for Lab 6a. We don't need to connect grid for Lab 6.
-    public void ConnectGrid() // TODO: Made public for Lab 5. Also lots of changes within.
+    /* public void ConnectGrid() // TODO: Made public for Lab 5. Also lots of changes within.
     {
         for (int row = 0; row < rows; row++)
         {
@@ -203,7 +203,7 @@ public class GridManager : MonoBehaviour
                 }
             }
         }
-    }
+    } */
     // Comment out to here.
 
     public GameObject[,] GetGrid()
