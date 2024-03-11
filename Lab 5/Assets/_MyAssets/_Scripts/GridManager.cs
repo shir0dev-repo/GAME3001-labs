@@ -31,7 +31,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private Color[] colors;
     [SerializeField] private float baseTileCost = 1f;
     [SerializeField] private bool useManhattanHeuristic = true;
-    
+
     private GameObject[,] grid;
     private int rows = 12;
     private int columns = 16;
@@ -62,7 +62,7 @@ public class GridManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.G))
         {
-            foreach(Transform child in transform)
+            foreach (Transform child in transform)
                 child.gameObject.SetActive(!child.gameObject.activeSelf);
             panelParent.gameObject.SetActive(!panelParent.gameObject.activeSelf);
         }
@@ -73,6 +73,7 @@ public class GridManager : MonoBehaviour
             Vector2 mineIndex = mineInst.GetComponent<NavigationObject>().GetGridIndex();
             grid[(int)mineIndex.y, (int)mineIndex.x].GetComponent<TileScript>().SetStatus(TileStatus.IMPASSABLE);
             mines.Add(mineInst);
+            ConnectGrid();
         }
         if (Input.GetKeyDown(KeyCode.C))
         {
@@ -83,12 +84,13 @@ public class GridManager : MonoBehaviour
                 Destroy(mine);
             }
             mines.Clear();
+            ConnectGrid();
         }
         if (Input.GetKeyDown(KeyCode.F))
         {
             Vector2 shipIndices = GameObject.FindGameObjectWithTag("Ship").GetComponent<NavigationObject>().GetGridIndex();
             Vector2 planetIndices = GameObject.FindGameObjectWithTag("Planet").GetComponent<NavigationObject>().GetGridIndex();
-            
+
             PathNode start = grid[(int)shipIndices.y, (int)shipIndices.x].GetComponent<TileScript>().Node;
             PathNode goal = grid[(int)planetIndices.y, (int)planetIndices.x].GetComponent<TileScript>().Node;
 
@@ -110,7 +112,7 @@ public class GridManager : MonoBehaviour
                 TileScript tileScript = tileInst.GetComponent<TileScript>();
                 tileScript.SetColor(colors[System.Convert.ToInt32((count++ % 2 == 0))]);
                 tileInst.transform.parent = transform;
-                grid[row,col] = tileInst;
+                grid[row, col] = tileInst;
                 // Instantiate a new TilePanel and link it to the Tile instance.
                 GameObject panelInst = GameObject.Instantiate(tilePanelPrefab, tilePanelPrefab.transform.position, Quaternion.identity);
                 panelInst.transform.SetParent(panelParent.transform);
@@ -152,7 +154,7 @@ public class GridManager : MonoBehaviour
                     {
                         tileScript.SetNeighbourTile((int)NeighbourTile.TOP_TILE, grid[row - 1, col]);
                         tileScript.Node.AddConnection(new PathConnection(
-                            tileScript.Node, 
+                            tileScript.Node,
                             grid[row - 1, col].GetComponent<TileScript>().Node,
                             Vector3.Distance(tileScript.transform.position, grid[row - 1, col].transform.position
                             ))
