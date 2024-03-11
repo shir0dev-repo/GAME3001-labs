@@ -28,9 +28,8 @@ public class Starship : AgentObject
 
     void Update()
     {
-        // TODO: Add new whisker and rotation behaviour for Lab 6a.
-        //
-        //
+        bool hit = CastWhisker(whiskerAngle, Color.red);
+        transform.Rotate(0f, 0f, Input.GetAxis("Horizontal") * rotationSpeed * Time.deltaTime);
 
         // TODO: Commented out for Lab 6a.
         //if (TargetPosition != null)
@@ -83,13 +82,12 @@ public class Starship : AgentObject
         // Calculate the direction of the whisker.
         Vector2 whiskerDirection = Quaternion.Euler(0, 0, angle) * transform.right;
 
-        // TODO: Add for Lab 6a.
-        //
-        //
-        //
-        //
-        //
-        //
+        if (_no.HasLOS(gameObject, "Planet", whiskerDirection, whiskerLength))
+        {
+            Debug.Log("Goal detected");
+            rayColor = Color.green;
+            hitResult = true;
+        }
 
         // Debug ray visualization
         Debug.DrawRay(transform.position, whiskerDirection * whiskerLength, rayColor);
