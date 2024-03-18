@@ -257,8 +257,8 @@ MonoBehaviour:
   colors:
   - {r: 0, g: 0.5019608, b: 0.5019608, a: 0.5019608}
   - {r: 0, g: 0.2509804, b: 0.5019608, a: 0.5019608}
-  baseTileCost: 1
-  useManhattanHeuristic: 1
+  losToShip: 1
+  losToPlanet: 1
 --- !u!4 &571498480
 Transform:
   m_ObjectHideFlags: 0
