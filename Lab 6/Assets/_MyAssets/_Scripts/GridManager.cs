@@ -29,9 +29,10 @@ public class GridManager : MonoBehaviour
     [SerializeField] private GameObject panelParent;
     [SerializeField] private GameObject minePrefab;
     [SerializeField] private Color[] colors;
-    [SerializeField] private float baseTileCost = 1f;
-    [SerializeField] private bool useManhattanHeuristic = true;
-
+    // [SerializeField] private float baseTileCost = 1f;
+    // [SerializeField] private bool useManhattanHeuristic = true;
+    [SerializeField] bool losToShip;
+    [SerializeField] bool losToPlanet;
     private GameObject[,] grid;
     private int rows = 12;
     private int columns = 16;
@@ -93,23 +94,31 @@ public class GridManager : MonoBehaviour
             // TODO: Comment out for Lab 6a.
             //ConnectGrid();
         }
-        if (Input.GetKeyDown(KeyCode.F)) // Start pathfinding.
+
+        if (Input.GetKeyDown(KeyCode.L))
         {
-            // Get ship node.
-            GameObject ship = GameObject.FindGameObjectWithTag("Ship");
-            Vector2 shipIndices = ship.GetComponent<NavigationObject>().GetGridIndex();
-            PathNode start = grid[(int)shipIndices.y, (int)shipIndices.x].GetComponent<TileScript>().Node;
-            // Get goal node.
-            GameObject planet = GameObject.FindGameObjectWithTag("Planet");
-            Vector2 planetIndices = planet.GetComponent<NavigationObject>().GetGridIndex();
-            PathNode goal = grid[(int)planetIndices.y, (int)planetIndices.x].GetComponent<TileScript>().Node;
-            // Start the algorithm.
-            PathManager.Instance.GetShortestPath(start, goal);
+            // check tile LOS
+            CheckTileLOS();
         }
-        if (Input.GetKeyDown(KeyCode.R)) // Reset grid/pathfinding.
-        {
-            SetTileStatuses();
-        }
+
+        CheckTileLOS();
+        /*         if (Input.GetKeyDown(KeyCode.F)) // Start pathfinding.
+                {
+                    // Get ship node.
+                    GameObject ship = GameObject.FindGameObjectWithTag("Ship");
+                    Vector2 shipIndices = ship.GetComponent<NavigationObject>().GetGridIndex();
+                    PathNode start = grid[(int)shipIndices.y, (int)shipIndices.x].GetComponent<TileScript>().Node;
+                    // Get goal node.
+                    GameObject planet = GameObject.FindGameObjectWithTag("Planet");
+                    Vector2 planetIndices = planet.GetComponent<NavigationObject>().GetGridIndex();
+                    PathNode goal = grid[(int)planetIndices.y, (int)planetIndices.x].GetComponent<TileScript>().Node;
+                    // Start the algorithm.
+                    PathManager.Instance.GetShortestPath(start, goal);
+                }
+                if (Input.GetKeyDown(KeyCode.R)) // Reset grid/pathfinding.
+                {
+                    SetTileStatuses();
+                } */
     }
 
     private void BuildGrid()
@@ -217,35 +226,35 @@ public class GridManager : MonoBehaviour
         return new Vector2(xPos, yPos);
     }
 
-    public void SetTileCosts(Vector2 targetIndices)
-    {
-        float distance = 0f;
-        float dx = 0f;
-        float dy = 0f;
+    /*  public void SetTileCosts(Vector2 targetIndices)
+     {
+         float distance = 0f;
+         float dx = 0f;
+         float dy = 0f;
 
-        for (int row = 0; row < rows; row++)
-        {
-            for (int col = 0; col < columns; col++)
-            {
-                TileScript tileScript = grid[row, col].GetComponent<TileScript>();
-                if (useManhattanHeuristic)
-                {
-                    dx = Mathf.Abs(col - targetIndices.x);
-                    dy = Mathf.Abs(row - targetIndices.y);
-                    distance = dx + dy;
-                }
-                else // Euclidean.
-                {
-                    dx = targetIndices.x - col;
-                    dy = targetIndices.y - row;
-                    distance = Mathf.Sqrt(dx * dx + dy * dy);
-                }
-                float adjustedCost = distance * baseTileCost;
-                tileScript.cost = adjustedCost;
-                tileScript.tilePanel.costText.text = tileScript.cost.ToString("F1");
-            }
-        }
-    }
+         for (int row = 0; row < rows; row++)
+         {
+             for (int col = 0; col < columns; col++)
+             {
+                 TileScript tileScript = grid[row, col].GetComponent<TileScript>();
+                 if (useManhattanHeuristic)
+                 {
+                     dx = Mathf.Abs(col - targetIndices.x);
+                     dy = Mathf.Abs(row - targetIndices.y);
+                     distance = dx + dy;
+                 }
+                 else // Euclidean.
+                 {
+                     dx = targetIndices.x - col;
+                     dy = targetIndices.y - row;
+                     distance = Mathf.Sqrt(dx * dx + dy * dy);
+                 }
+                 float adjustedCost = distance * baseTileCost;
+                 tileScript.cost = adjustedCost;
+                 tileScript.tilePanel.costText.text = tileScript.cost.ToString("F1");
+             }
+         }
+     } */
 
     public void SetTileStatuses()
     {
@@ -266,5 +275,61 @@ public class GridManager : MonoBehaviour
         GameObject planet = GameObject.FindGameObjectWithTag("Planet");
         Vector2 planetIndices = planet.GetComponent<NavigationObject>().GetGridIndex();
         grid[(int)planetIndices.y, (int)planetIndices.x].GetComponent<TileScript>().SetStatus(TileStatus.GOAL);
+    }
+
+    public void CheckTileLOS()
+    {
+        if (!losToShip && !losToPlanet)
+        {
+            foreach (GameObject go in grid)
+            {
+                if (go == null) continue;
+
+                go.GetComponent<SpriteRenderer>().color = Color.cyan;
+            }
+        }
+        else
+        {
+            GameObject player = GameObject.FindWithTag("Ship");
+            Vector3 shipPos = player.transform.position;
+
+            GameObject planet = GameObject.FindWithTag("Planet");
+            Vector3 planetPos = planet.transform.position;
+
+            foreach (GameObject tile in grid)
+            {
+                if (tile == null) continue;
+                Vector3 tilePos = tile.transform.position;
+                bool hasLOSToShip = false;
+                bool hasLOSToPlanet = false;
+
+                if (losToShip)
+                {
+                    Vector3 dir = (shipPos - tilePos).normalized;
+                    hasLOSToShip = tile.GetComponent<NavigationObject>().HasLOS(tile, "Ship", dir, Vector3.Distance(tilePos, shipPos));
+                }
+                if (losToPlanet)
+                {
+                    Vector2 dir = (planetPos - tilePos).normalized;
+                    hasLOSToPlanet = tile.GetComponent<NavigationObject>().HasLOS(tile, "Planet", dir, Vector3.Distance(tilePos, planetPos));
+                }
+
+                switch (losToShip, losToPlanet)
+                {
+                    case (true, true): // ship and planet
+                        tile.GetComponent<SpriteRenderer>().color = hasLOSToShip && hasLOSToPlanet ?
+                            Color.green : Color.red;
+                        break;
+                    case (true, false): // ship
+                        tile.GetComponent<SpriteRenderer>().color = hasLOSToShip ?
+                            Color.green : Color.red;
+                        break;
+                    case (false, true): // planet
+                        tile.GetComponent<SpriteRenderer>().color = hasLOSToPlanet ?
+                            Color.green : Color.red;
+                        break;
+                }
+            }
+        }
     }
 }

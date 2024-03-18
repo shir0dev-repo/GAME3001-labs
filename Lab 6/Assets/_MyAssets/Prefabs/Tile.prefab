@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4366870903312483705}
   - component: {fileID: 244092178083644082}
   - component: {fileID: 8900831317698964304}
+  - component: {fileID: -6827393418273772937}
   m_Layer: 0
   m_Name: Tile
   m_TagString: Untagged
@@ -106,3 +107,16 @@ MonoBehaviour:
   tilePanel: {fileID: 0}
   status: 0
   cost: 1
+--- !u!114 &-6827393418273772937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4813588358410622281}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa74ed3aad54aa44fbcc24ea94723ae5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gridIndex: {x: 0, y: 0}
