@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5500765332750420996}
   - component: {fileID: 4637256182798172040}
   - component: {fileID: 3697943157127128799}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Debug
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: ad1cd2039dc61ab40bbc05be2e047af7, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -109,7 +109,7 @@ GameObject:
   - component: {fileID: 2403395623895211648}
   - component: {fileID: 5384423897402809600}
   - component: {fileID: 2308732305164509679}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Node
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -148,7 +148,7 @@ BoxCollider:
     m_Bits: 0
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
-  m_ProvidesContacts: 0
+  m_ProvidesContacts: 1
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
@@ -170,3 +170,4 @@ MonoBehaviour:
   Position: {x: 0, y: 0}
   Neighbours: []
   IsObstacle: 0
+  DebugDisplay: {fileID: 0}

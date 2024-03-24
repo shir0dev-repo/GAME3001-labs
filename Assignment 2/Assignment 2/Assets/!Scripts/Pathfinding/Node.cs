@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 [SelectionBase]
-public class Node : MonoBehaviour, IPointerClickHandler
+public class Node : MonoBehaviour
 {
     /// <summary>
     /// Distance to Starting Node.
@@ -36,22 +36,18 @@ public class Node : MonoBehaviour, IPointerClickHandler
     /// Prevents player from traversing over tile.
     /// </summary>
     public bool IsObstacle = false;
+    public NodeDebugDisplay DebugDisplay;
 
     private void Awake()
     {
-        transform.GetChild(0).gameObject.SetActive(false);
-    }
-
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        NodeGrid.Instance.SetTarget(this);
+        DebugDisplay = transform.GetChild(0).GetComponent<NodeDebugDisplay>();
+        DebugDisplay.gameObject.SetActive(false);
     }
 
     public void ToggleDebug(bool visible)
     {
-        NodeDebugDisplay db = GetComponentInChildren<NodeDebugDisplay>(true);
-        db.RefreshState();
-        db.gameObject.SetActive(visible);
+        DebugDisplay.RefreshState();
+        DebugDisplay.gameObject.SetActive(visible);
     }
 
     public override string ToString()

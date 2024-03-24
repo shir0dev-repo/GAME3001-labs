@@ -3,13 +3,14 @@ using UnityEngine;
 
 public class NodeDebugDisplay : MonoBehaviour
 {
-  public enum DebugType { DEFAULT, PATH, OBSTACLE, TARGET }
+  enum DebugType { DEFAULT, PATH, OBSTACLE, TARGET }
+
   [SerializeField] private Node _parent;
   [SerializeField] private MeshRenderer _meshRenderer;
   private DebugType _db;
   private static Dictionary<DebugType, Color> _debugColorDict = new()
   {
-    { DebugType.DEFAULT, Color.blue },
+    { DebugType.DEFAULT, Color.grey },
     { DebugType.TARGET, Color.magenta },
     { DebugType.PATH, Color.green },
     { DebugType.OBSTACLE, Color.red },

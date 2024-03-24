@@ -590,6 +590,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _inDebugMode: 0
   _nodeGrid: {fileID: 828382412}
+  _tileLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!4 &1878352639
 Transform:
   m_ObjectHideFlags: 0
@@ -613,5 +616,5 @@ SceneRoots:
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 828382413}
-  - {fileID: 399148325}
   - {fileID: 1878352639}
+  - {fileID: 399148325}

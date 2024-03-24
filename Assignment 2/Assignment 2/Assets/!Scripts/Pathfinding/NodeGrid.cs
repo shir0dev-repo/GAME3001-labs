@@ -62,24 +62,23 @@ public class NodeGrid : Singleton<NodeGrid>
         }
     }
 
+    public void GeneratePath()
+    {
+        CurrentPath = Pathfinding.PathTo(CurrentStart, CurrentTarget, _useManhattan);
+    }
+    public void GeneratePath(bool isRandom)
+    {
+        if (isRandom)
+        {
+            CurrentStart = GetRandomNode();
+            CurrentTarget = GetRandomNode();
+        }
+
+        GeneratePath();
+    }
     public void GeneratePath(Node start, Node target)
     {
         CurrentPath = Pathfinding.PathTo(start, target, _useManhattan);
-    }
-
-    public void ClearColors()
-    {
-        foreach (Node node in Nodes)
-            node.GetComponentInChildren<MeshRenderer>().material.color = Color.white;
-    }
-
-    public void ColorNodes(List<Node> nodes)
-    {
-        foreach (Node pathNode in nodes)
-        {
-            pathNode.ToggleDebug(true);
-
-        }
     }
 
     private Node GetRandomNode()
@@ -87,12 +86,27 @@ public class NodeGrid : Singleton<NodeGrid>
         return Nodes[Random.Range(0, Nodes.GetLength(0)), Random.Range(0, Nodes.GetLength(1))];
     }
 
+    public void ToggleManhattanHeuristic()
+    {
+        _useManhattan = !_useManhattan;
+    }
+
+    public void SetStart(Node node)
+    {
+        CurrentStart = node;
+        CurrentPath = Pathfinding.PathTo(CurrentStart, CurrentTarget, _useManhattan);
+    }
     public void SetTarget(Node node)
     {
         CurrentTarget = node;
         CurrentPath = Pathfinding.PathTo(CurrentStart, CurrentTarget, _useManhattan);
+    }
 
-        ClearColors();
-        ColorNodes(CurrentPath);
+    public void RefreshDebugDisplay()
+    {
+        foreach (Node node in Nodes)
+        {
+            node.ToggleDebug(true);
+        }
     }
 }
