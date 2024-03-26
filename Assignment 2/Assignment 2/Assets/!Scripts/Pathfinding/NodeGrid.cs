@@ -8,7 +8,7 @@ public class NodeGrid : Singleton<NodeGrid>
     private const int _SIZE = 10;
 
     [SerializeField] private GameObject _nodePrefab;
-    [SerializeField] private bool _useManhattan;
+    [SerializeField] private Pathfinding.Heuristic _heuristic;
 
     public Node[,] Nodes { get; private set; }
     public List<Node> CurrentPath { get; private set; }
@@ -25,7 +25,7 @@ public class NodeGrid : Singleton<NodeGrid>
         CurrentStart = GetRandomNode();
         CurrentTarget = GetRandomNode();
 
-        CurrentPath = Pathfinding.PathTo(CurrentStart, CurrentTarget, _useManhattan);
+        CurrentPath = Pathfinding.GetPath(CurrentStart, CurrentTarget, _heuristic);
     }
 
     public void PopulateGrid()
@@ -64,7 +64,8 @@ public class NodeGrid : Singleton<NodeGrid>
 
     public void GeneratePath()
     {
-        CurrentPath = Pathfinding.PathTo(CurrentStart, CurrentTarget, _useManhattan);
+        ResetGrid();
+        CurrentPath = Pathfinding.GetPath(CurrentStart, CurrentTarget, _heuristic);
     }
     public void GeneratePath(bool isRandom)
     {
@@ -78,7 +79,7 @@ public class NodeGrid : Singleton<NodeGrid>
     }
     public void GeneratePath(Node start, Node target)
     {
-        CurrentPath = Pathfinding.PathTo(start, target, _useManhattan);
+        CurrentPath = Pathfinding.GetPath(start, target, _heuristic);
     }
 
     private Node GetRandomNode()
@@ -86,20 +87,27 @@ public class NodeGrid : Singleton<NodeGrid>
         return Nodes[Random.Range(0, Nodes.GetLength(0)), Random.Range(0, Nodes.GetLength(1))];
     }
 
-    public void ToggleManhattanHeuristic()
-    {
-        _useManhattan = !_useManhattan;
-    }
-
     public void SetStart(Node node)
     {
         CurrentStart = node;
-        CurrentPath = Pathfinding.PathTo(CurrentStart, CurrentTarget, _useManhattan);
+        ResetGrid();
+        CurrentPath = Pathfinding.GetPath(CurrentStart, CurrentTarget, _heuristic);
     }
     public void SetTarget(Node node)
     {
         CurrentTarget = node;
-        CurrentPath = Pathfinding.PathTo(CurrentStart, CurrentTarget, _useManhattan);
+        ResetGrid();
+        CurrentPath = Pathfinding.GetPath(CurrentStart, CurrentTarget, _heuristic);
+    }
+
+    public void ResetGrid()
+    {
+        foreach (Node node in Nodes)
+        {
+            node.NodeType = Node.Type.DEFAULT;
+            node.G = 0;
+            node.H = 0;
+        }
     }
 
     public void RefreshDebugDisplay()

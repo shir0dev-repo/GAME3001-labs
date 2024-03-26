@@ -5,37 +5,62 @@ using UnityEngine;
 
 public static class Pathfinding
 {
+  public enum Heuristic { Manhattan, Euclidean }
+
+  private delegate float costDelegate(Vector2 start, Vector2 end);
 
   /// <summary>
-  /// Uses the A-Star algorithm to find the shortest path (Manhattan-based) between two nodes.
+  /// Uses the A-Star algorithm to find the shortest path between two nodes.
   /// </summary>
   /// <param name="startingNode">The node to start the search from.</param>
   /// <param name="targetNode">The target node to reach.</param>
+  /// <param name="heuristic">The type of heuristic to use for the algorithm.</param>
   /// <returns>A list of nodes containing the shortest path between the start and end nodes.</returns>
-  public static List<Node> PathTo(Node startingNode, Node targetNode, bool useManhattan)
+  public static List<Node> GetPath(Node startingNode, Node targetNode, Heuristic heuristic)
   {
 
-    float getTileCost(Vector2 start, Vector2 end)
-      => useManhattan ? GetTileCostManhattan(start, end) : GetTileCostEuclidean(start, end);
+    costDelegate getTileCost = heuristic switch
+    {
+      Heuristic.Manhattan => GetTileCostManhattan,
+      Heuristic.Euclidean => GetTileCostEuclidean,
+      _ => (_, _) => { return 0; }
+    };
 
     List<Node> openPathNodes = new();
     List<Node> closedPathNodes = new();
 
     Node currentNode = startingNode;
+    currentNode.NodeType = Node.Type.START;
 
     currentNode.G = 0;
     currentNode.H = getTileCost(currentNode.Position, targetNode.Position);
+
+    targetNode.NodeType = Node.Type.TARGET;
 
     openPathNodes.Add(currentNode);
 
     while (openPathNodes.Count > 0)
     {
-      openPathNodes = openPathNodes.OrderBy(node => node.F).ToList(); // sort list by lowest total cost
-      currentNode = openPathNodes[0];
+      openPathNodes = openPathNodes
+        .OrderBy(node => node.F)
+        .ThenByDescending(node => node.G)
+        .ThenBy(node => node.H)
+        .ToList();
+      // sort list by lowest total cost, then by distance from start, then by distance from target
+      // sorting this way ensures a strict preference to the lowest G value, meaning the algorithm will prefer paths with
+      // the least distance from the starting node
 
+      currentNode = openPathNodes[0];
+      string str = "";
+      foreach (var elem in openPathNodes)
+      {
+        str += $"F: {elem.F}, G: {elem.G}, H: {elem.H}\n";
+      }
+      Debug.Log(str);
       openPathNodes.Remove(currentNode);
       closedPathNodes.Add(currentNode);
 
+      // the distance from start that the following nodes will have
       float g = currentNode.G + 1;
 
       if (closedPathNodes.Contains(targetNode))
@@ -43,8 +68,7 @@ public static class Pathfinding
 
       foreach (Node neighbour in currentNode.Neighbours)
       {
-        if (neighbour.IsObstacle) continue;
-        if (closedPathNodes.Contains(neighbour)) continue;
+        if (neighbour.IsObstacle || closedPathNodes.Contains(neighbour)) continue;
 
         if (!openPathNodes.Contains(neighbour))
         {
@@ -70,6 +94,9 @@ public static class Pathfinding
       while (currentNode != null && currentNode != startingNode)
       {
         finalPath.Add(currentNode);
+        if (currentNode != targetNode || currentNode != startingNode)
+          currentNode.NodeType = Node.Type.PATH;
+
         closedPathNodes.Remove(currentNode);
 
         currentNode = closedPathNodes.Find(n => n.G < currentNode.G && currentNode.Neighbours.Contains(n));
@@ -80,6 +107,11 @@ public static class Pathfinding
     return finalPath;
   }
 
+  /// <summary>
+  ///
+  /// </summary>
+  /// <remarks></remarks>
+  /// <returns></returns>
   private static float BreakTie(Vector2 startPos, Vector2 currentPos, Vector2 targetPos)
   {
     float dx1 = currentPos.x - targetPos.x;
@@ -99,8 +131,6 @@ public static class Pathfinding
     float yCost = Mathf.Abs(startPos.y - targetPos.y);
     return xCost + yCost;
   }
-
-
 
   public static float GetTileCostEuclidean(Vector2 startPos, Vector2 targetPos)
   {

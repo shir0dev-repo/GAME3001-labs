@@ -5,6 +5,8 @@ using UnityEngine.EventSystems;
 [SelectionBase]
 public class Node : MonoBehaviour
 {
+    public enum Type { DEFAULT, PATH, START, TARGET, OBSTACLE }
+    public Type NodeType { get; set; }
     /// <summary>
     /// Distance to Starting Node.
     /// </summary>
@@ -36,7 +38,8 @@ public class Node : MonoBehaviour
     /// Prevents player from traversing over tile.
     /// </summary>
     public bool IsObstacle = false;
-    public NodeDebugDisplay DebugDisplay;
+
+    [SerializeField] private NodeDebugDisplay DebugDisplay;
 
     private void Awake()
     {
@@ -46,7 +49,7 @@ public class Node : MonoBehaviour
 
     public void ToggleDebug(bool visible)
     {
-        DebugDisplay.RefreshState();
+        DebugDisplay.RefreshState(this);
         DebugDisplay.gameObject.SetActive(visible);
     }
 

@@ -1,37 +1,26 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class NodeDebugDisplay : MonoBehaviour
 {
-  enum DebugType { DEFAULT, PATH, OBSTACLE, TARGET }
+  [SerializeField] private Image _borderPanel;
 
-  [SerializeField] private Node _parent;
-  [SerializeField] private MeshRenderer _meshRenderer;
-  private DebugType _db;
-  private static Dictionary<DebugType, Color> _debugColorDict = new()
+  private void Awake()
   {
-    { DebugType.DEFAULT, Color.grey },
-    { DebugType.TARGET, Color.magenta },
-    { DebugType.PATH, Color.green },
-    { DebugType.OBSTACLE, Color.red },
-  };
-
-  private void Start()
-  {
-    _meshRenderer = GetComponent<MeshRenderer>();
+    GetComponent<Canvas>().worldCamera = Camera.main;
   }
 
-  public void RefreshState()
+  public void RefreshState(Node parentNode)
   {
-    if (NodeGrid.Instance.CurrentPath.Contains(_parent))
-      _db = DebugType.PATH;
-    else if (NodeGrid.Instance.CurrentTarget == _parent)
-      _db = DebugType.TARGET;
-    else if (_parent.IsObstacle)
-      _db = DebugType.OBSTACLE;
-    else
-      _db = DebugType.DEFAULT;
-
-    _meshRenderer.material.color = _debugColorDict[_db];
+    _borderPanel.color = parentNode.NodeType switch
+    {
+      Node.Type.DEFAULT => Color.grey,
+      Node.Type.PATH => Color.green,
+      Node.Type.START => Color.cyan,
+      Node.Type.TARGET => Color.red,
+      Node.Type.OBSTACLE => Color.magenta,
+      _ => Color.grey
+    };
   }
 }

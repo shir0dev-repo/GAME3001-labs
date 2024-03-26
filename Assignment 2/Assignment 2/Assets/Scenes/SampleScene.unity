@@ -494,7 +494,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _nodePrefab: {fileID: 8437972357345102279, guid: c3cc453f687bff34eb818b934150c930,
     type: 3}
-  _useManhattan: 0
+  _heuristic: 1
 --- !u!4 &828382413
 Transform:
   m_ObjectHideFlags: 0

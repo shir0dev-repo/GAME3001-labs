@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GameController : Singleton<GameController>
@@ -21,10 +18,6 @@ public class GameController : Singleton<GameController>
         if (Input.GetKeyDown(KeyCode.H)) // toggle debug mode
         {
             ToggleDebugMode();
-        }
-        if (Input.GetKeyDown(KeyCode.V)) // toggle manhattan heuristic
-        {
-            _nodeGrid.ToggleManhattanHeuristic();
         }
         if (Input.GetKeyDown(KeyCode.F)) // find and display path
         {
