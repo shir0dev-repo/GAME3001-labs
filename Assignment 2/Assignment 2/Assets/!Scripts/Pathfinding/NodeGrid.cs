@@ -66,6 +66,7 @@ public class NodeGrid : Singleton<NodeGrid>
     {
         ResetGrid();
         CurrentPath = Pathfinding.GetPath(CurrentStart, CurrentTarget, _heuristic);
+        RefreshDebugDisplay();
     }
     public void GeneratePath(bool isRandom)
     {

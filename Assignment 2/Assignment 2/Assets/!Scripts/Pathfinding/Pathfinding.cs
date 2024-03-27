@@ -43,7 +43,7 @@ public static class Pathfinding
     {
       openPathNodes = openPathNodes
         .OrderBy(node => node.F)
-        .ThenByDescending(node => node.G)
+        .ThenBy(node => node.G)
         .ThenBy(node => node.H)
         .ToList();
       // sort list by lowest total cost, then by distance from start, then by distance from target
@@ -51,12 +51,7 @@ public static class Pathfinding
       // the least distance from the starting node
 
       currentNode = openPathNodes[0];
-      string str = "";
-      foreach (var elem in openPathNodes)
-      {
-        str += $"F: {elem.F}, G: {elem.G}, H: {elem.H}\n";
-      }
-      Debug.Log(str);
+
       openPathNodes.Remove(currentNode);
       closedPathNodes.Add(currentNode);
 
@@ -68,7 +63,14 @@ public static class Pathfinding
 
       foreach (Node neighbour in currentNode.Neighbours)
       {
-        if (neighbour.IsObstacle || closedPathNodes.Contains(neighbour)) continue;
+        if (neighbour.IsObstacle)
+        {
+          neighbour.NodeType = Node.Type.OBSTACLE;
+          continue;
+        }
+
+        if (closedPathNodes.Contains(neighbour)) continue;
+
 
         if (!openPathNodes.Contains(neighbour))
         {
@@ -94,7 +96,7 @@ public static class Pathfinding
       while (currentNode != null && currentNode != startingNode)
       {
         finalPath.Add(currentNode);
-        if (currentNode != targetNode || currentNode != startingNode)
+        if (currentNode.Position != targetNode.Position)
           currentNode.NodeType = Node.Type.PATH;
 
         closedPathNodes.Remove(currentNode);
