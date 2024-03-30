@@ -1,12 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 [SelectionBase]
 public class Node : MonoBehaviour
 {
     public enum Type { DEFAULT, PATH, START, TARGET, OBSTACLE }
     public Type NodeType { get; set; }
+
+    private static Color _glowColor;
+
     /// <summary>
     /// Distance to Starting Node.
     /// </summary>
@@ -32,19 +34,45 @@ public class Node : MonoBehaviour
     /// <summary>
     /// List of Nodes within the four Cardinal directions.
     /// </summary>
-    public List<Node> Neighbours = new List<Node>();
+    [HideInInspector] public List<Node> Neighbours = new List<Node>();
 
     /// <summary>
     /// Prevents player from traversing over tile.
     /// </summary>
-    public bool IsObstacle = false;
+    [HideInInspector] public bool IsObstacle = false;
 
     [SerializeField] private NodeDebugDisplay DebugDisplay;
+    [SerializeField] private Transform _prop;
+    private MeshRenderer _tileMeshRenderer;
+    private bool _isGlowing;
+    public Vector3 PropPosition => _prop.position;
 
     private void Awake()
     {
         DebugDisplay = transform.GetChild(0).GetComponent<NodeDebugDisplay>();
         DebugDisplay.gameObject.SetActive(false);
+        _tileMeshRenderer = GetComponentInChildren<MeshRenderer>();
+
+        if (_tileMeshRenderer != null)
+        {
+            if (_glowColor == null)
+                _glowColor = _tileMeshRenderer.materials[1].GetColor("_GlowColor");
+            ToggleGlow(false);
+        }
+    }
+
+    public void ToggleGlow()
+    {
+        _isGlowing = !_isGlowing;
+        ToggleGlow(_isGlowing);
+    }
+
+    public void ToggleGlow(bool active)
+    {
+        if (active)
+            _tileMeshRenderer.materials[1].SetColor("_GlowColor", _glowColor);
+        else
+            _tileMeshRenderer.materials[1].SetColor("_GlowColor", Color.black);
     }
 
     public void ToggleDebug(bool visible)
@@ -56,5 +84,21 @@ public class Node : MonoBehaviour
     public override string ToString()
     {
         return $"Node: [{Position.x}, {Position.y}]";
+    }
+
+    public void ToggleObstacle()
+    {
+        IsObstacle = !IsObstacle;
+
+        NodeType = IsObstacle ? Type.OBSTACLE : Type.DEFAULT;
+    }
+
+    private Quaternion GetTargetPropRotation()
+    {
+        int index = NodeGrid.Instance.CurrentPath.Count - 2;
+        if (index < 0) return Quaternion.LookRotation(NodeGrid.Instance.CurrentStart.transform.position - transform.position, Vector3.up);
+
+        Node adjacent = NodeGrid.Instance.CurrentPath[index];
+        return Quaternion.LookRotation(adjacent.transform.position - transform.position, Vector3.up);
     }
 }

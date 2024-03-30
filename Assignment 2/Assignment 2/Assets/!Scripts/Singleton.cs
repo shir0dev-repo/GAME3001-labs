@@ -28,3 +28,18 @@ public abstract class Singleton<T> : StaticInstance<T> where T : MonoBehaviour
         base.Awake();
     }
 }
+
+/// <summary>
+/// Creates a singleton instance of T.
+/// Destroys self if T instance is not null.
+/// Persists upon loading a new scene.
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public abstract class PersistentSingleton<T> : Singleton<T> where T : MonoBehaviour
+{
+    protected override void Awake()
+    {
+        base.Awake();
+        DontDestroyOnLoad(gameObject);
+    }
+}

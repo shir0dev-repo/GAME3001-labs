@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,6 +16,7 @@ public class NodeGrid : Singleton<NodeGrid>
 
     public Node CurrentStart { get; private set; }
     public Node CurrentTarget { get; private set; }
+    public Pathfinding.Heuristic CurrentHeuristic => _heuristic;
 
     protected override void Awake()
     {
@@ -22,10 +24,7 @@ public class NodeGrid : Singleton<NodeGrid>
         Nodes = new Node[_SIZE, _SIZE];
         PopulateGrid();
 
-        CurrentStart = GetRandomNode();
-        CurrentTarget = GetRandomNode();
-
-        CurrentPath = Pathfinding.GetPath(CurrentStart, CurrentTarget, _heuristic);
+        GeneratePath(isRandom: true);
     }
 
     public void PopulateGrid()
@@ -85,7 +84,17 @@ public class NodeGrid : Singleton<NodeGrid>
 
     private Node GetRandomNode()
     {
-        return Nodes[Random.Range(0, Nodes.GetLength(0)), Random.Range(0, Nodes.GetLength(1))];
+        int timeout = 500;
+        int attempts = 0;
+        do
+        {
+            attempts++;
+
+            Node n = Nodes[Random.Range(0, Nodes.GetLength(0)), Random.Range(0, Nodes.GetLength(1))];
+            if (n.IsObstacle == false)
+                return n;
+        } while (attempts < timeout);
+        throw new StackOverflowException("Could not select a random node within 500 attempts. Please try again.");
     }
 
     public void SetStart(Node node)
@@ -93,7 +102,16 @@ public class NodeGrid : Singleton<NodeGrid>
         CurrentStart = node;
         ResetGrid();
         CurrentPath = Pathfinding.GetPath(CurrentStart, CurrentTarget, _heuristic);
+
+        HighlightPath();
     }
+
+    public void HighlightPath()
+    {
+        foreach (Node node in CurrentPath)
+            node.ToggleGlow(true);
+    }
+
     public void SetTarget(Node node)
     {
         CurrentTarget = node;
@@ -101,18 +119,54 @@ public class NodeGrid : Singleton<NodeGrid>
         CurrentPath = Pathfinding.GetPath(CurrentStart, CurrentTarget, _heuristic);
     }
 
+    public void SetObstacle(Node node)
+    {
+        Nodes[node.Position.x, node.Position.y].ToggleObstacle();
+    }
+
+    public List<Node> GetObstacleNodes()
+    {
+        List<Node> obstNodes = new();
+
+        foreach (Node node in Nodes)
+        {
+            if (node.IsObstacle)
+                obstNodes.Add(node);
+        }
+
+        return obstNodes;
+    }
+
+    public void SwapHeuristicType()
+    {
+        if (_heuristic == Pathfinding.Heuristic.Manhattan)
+            _heuristic = Pathfinding.Heuristic.Euclidean;
+        else
+            _heuristic = Pathfinding.Heuristic.Manhattan;
+    }
+
     public void ResetGrid()
     {
         foreach (Node node in Nodes)
         {
-            node.NodeType = Node.Type.DEFAULT;
+            if (node.NodeType != Node.Type.OBSTACLE)
+                node.NodeType = Node.Type.DEFAULT;
             node.G = 0;
             node.H = 0;
+            node.ToggleGlow(false);
         }
+    }
+
+    public void ClearGlow()
+    {
+        foreach (Node node in Nodes)
+            node.ToggleGlow(false);
     }
 
     public void RefreshDebugDisplay()
     {
+        if (GameController.Instance.InDebugMode == false) return;
+
         foreach (Node node in Nodes)
         {
             node.ToggleDebug(true);
