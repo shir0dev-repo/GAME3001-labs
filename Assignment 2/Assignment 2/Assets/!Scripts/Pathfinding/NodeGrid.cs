@@ -10,6 +10,7 @@ public class NodeGrid : Singleton<NodeGrid>
 
     [SerializeField] private GameObject _nodePrefab;
     [SerializeField] private Pathfinding.Heuristic _heuristic;
+    [SerializeField] private int _randObstacles = 5;
 
     public Node[,] Nodes { get; private set; }
     public List<Node> CurrentPath { get; private set; }
@@ -18,11 +19,18 @@ public class NodeGrid : Singleton<NodeGrid>
     public Node CurrentTarget { get; private set; }
     public Pathfinding.Heuristic CurrentHeuristic => _heuristic;
 
+    private bool _isGlowing = false;
+
     protected override void Awake()
     {
         base.Awake();
         Nodes = new Node[_SIZE, _SIZE];
         PopulateGrid();
+
+        for (int i = 0; i < _randObstacles; i++)
+        {
+            GetRandomNode().ToggleObstacle();
+        }
 
         GeneratePath(isRandom: true);
     }
@@ -61,21 +69,19 @@ public class NodeGrid : Singleton<NodeGrid>
         }
     }
 
-    public void GeneratePath()
+    public void GeneratePath(bool isRandom = false)
     {
         ResetGrid();
-        CurrentPath = Pathfinding.GetPath(CurrentStart, CurrentTarget, _heuristic);
-        RefreshDebugDisplay();
-    }
-    public void GeneratePath(bool isRandom)
-    {
+
         if (isRandom)
         {
             CurrentStart = GetRandomNode();
             CurrentTarget = GetRandomNode();
         }
 
-        GeneratePath();
+        CurrentPath = Pathfinding.GetPath(CurrentStart, CurrentTarget, _heuristic);
+        RefreshDebugDisplay();
+        TogglePathHighlight(_isGlowing);
     }
     public void GeneratePath(Node start, Node target)
     {
@@ -102,26 +108,28 @@ public class NodeGrid : Singleton<NodeGrid>
         CurrentStart = node;
         ResetGrid();
         CurrentPath = Pathfinding.GetPath(CurrentStart, CurrentTarget, _heuristic);
-
-        HighlightPath();
+        RefreshDebugDisplay();
+        TogglePathHighlight(_isGlowing);
     }
-
-    public void HighlightPath()
-    {
-        foreach (Node node in CurrentPath)
-            node.ToggleGlow(true);
-    }
-
     public void SetTarget(Node node)
     {
         CurrentTarget = node;
         ResetGrid();
         CurrentPath = Pathfinding.GetPath(CurrentStart, CurrentTarget, _heuristic);
+        RefreshDebugDisplay();
+        TogglePathHighlight(_isGlowing);
     }
 
-    public void SetObstacle(Node node)
+    public void TogglePathHighlight()
     {
-        Nodes[node.Position.x, node.Position.y].ToggleObstacle();
+        TogglePathHighlight(!_isGlowing);
+    }
+    public void TogglePathHighlight(bool state)
+    {
+        ClearGlow();
+        _isGlowing = state;
+        foreach (Node node in CurrentPath)
+            node.ToggleGlow(_isGlowing);
     }
 
     public List<Node> GetObstacleNodes()
@@ -161,12 +169,17 @@ public class NodeGrid : Singleton<NodeGrid>
     {
         foreach (Node node in Nodes)
             node.ToggleGlow(false);
+        _isGlowing = false;
     }
 
     public void RefreshDebugDisplay()
     {
-        if (GameController.Instance.InDebugMode == false) return;
-
+        if (GameController.Instance == null || GameController.Instance.InDebugMode == false)
+            return;
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdatePathCost(CurrentPath.Count);
+        }
         foreach (Node node in Nodes)
         {
             node.ToggleDebug(true);

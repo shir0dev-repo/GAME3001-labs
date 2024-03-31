@@ -101,7 +101,14 @@ public static class Pathfinding
 
         closedPathNodes.Remove(currentNode);
 
-        currentNode = closedPathNodes.Find(n => n.G < currentNode.G && currentNode.Neighbours.Contains(n));
+        foreach (Node n in closedPathNodes)
+        {
+          if (n.G <= currentNode.G && currentNode.Neighbours.Contains(n))
+          {
+            currentNode = n;
+            continue;
+          }
+        }
       }
 
       finalPath.Reverse();

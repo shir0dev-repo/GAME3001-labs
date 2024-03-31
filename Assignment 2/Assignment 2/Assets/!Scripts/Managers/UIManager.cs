@@ -10,14 +10,14 @@ public class UIManager : Singleton<UIManager>
     private const string _DEBUG_INSTRUCTION =
     "Reset Map: (R)\n" +
     "Set Starting Tile: (LMB)\n" +
-    "Set Target Tile: (RMB)" +
-    "Add/Remove Obstacle: (O)";
+    "Add/Remove Obstacle: (MMB/O)\n" +
+    "Set Target Tile: (RMB)";
 
     private const string _GAME_INSTRUCTION =
     "Move to Target: (M)\n" +
-    "Find Shortest Path: (F)";
+    "Toggle Path Highlight: (F)";
 
-    [SerializeField] private TextMeshProUGUI _debugText, _heuristicText;
+    [SerializeField] private TextMeshProUGUI _debugText, _heuristicText, _pathCostText;
     [SerializeField] private TextMeshProUGUI _instructionText;
 
     public void UpdateDebugText(bool isDebug)
@@ -37,5 +37,10 @@ public class UIManager : Singleton<UIManager>
     public void UpdateHeuristicText()
     {
         _heuristicText.text = _HEURISTIC_STR + $"<color=\"yellow\">{NodeGrid.Instance.CurrentHeuristic}";
+    }
+
+    public void UpdatePathCost(int cost)
+    {
+        _pathCostText.text = "Total Cost:\n" + cost.ToString();
     }
 }

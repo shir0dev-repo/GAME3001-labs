@@ -52,15 +52,15 @@ Material:
     - _Cull: 2
     - _DstBlend: 0
     - _FogDensity: 16.8
-    - _FogExponent: 2.97
-    - _HorizonOffset: 0.67
+    - _FogExponent: 4
+    - _HorizonOffset: 1.5
     - _QueueControl: 0
     - _QueueOffset: 0
     - _SrcBlend: 1
     - _StarDensity: 15
-    - _SunMaskOffset: 15
-    - _SunMaskSize: 0.392
-    - _SunSize: 0.25
+    - _SunMaskOffset: 10
+    - _SunMaskSize: 0.424
+    - _SunSize: 0.275
     - _Surface: 0
     - _WindSpeed: 1
     - _ZTest: 4
@@ -68,8 +68,8 @@ Material:
     - _ZWriteControl: 0
     m_Colors:
     - _CloudColor: {r: 0.8336829, g: 0.73800004, b: 1, a: 0.49019608}
-    - _HorizonColor: {r: 0.46186364, g: 0.9150943, b: 0.9150943, a: 1}
-    - _SkyColor: {r: 0.44250622, g: 0.81831396, b: 0.8301887, a: 1}
+    - _HorizonColor: {r: 0.45750266, g: 0.6063333, b: 0.6509434, a: 1}
+    - _SkyColor: {r: 0.3925046, g: 0.35444108, b: 0.5566038, a: 1}
     - _SunDirection: {r: 0.5, g: 0.5, b: -0.5, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &4503728241158295632

@@ -44,7 +44,6 @@ public class Node : MonoBehaviour
     [SerializeField] private NodeDebugDisplay DebugDisplay;
     [SerializeField] private Transform _prop;
     private MeshRenderer _tileMeshRenderer;
-    private bool _isGlowing;
     public Vector3 PropPosition => _prop.position;
 
     private void Awake()
@@ -56,23 +55,14 @@ public class Node : MonoBehaviour
         if (_tileMeshRenderer != null)
         {
             if (_glowColor == null)
-                _glowColor = _tileMeshRenderer.materials[1].GetColor("_GlowColor");
+                _glowColor = _tileMeshRenderer.materials[0].GetColor("_GlowColor");
             ToggleGlow(false);
         }
     }
 
-    public void ToggleGlow()
-    {
-        _isGlowing = !_isGlowing;
-        ToggleGlow(_isGlowing);
-    }
-
     public void ToggleGlow(bool active)
     {
-        if (active)
-            _tileMeshRenderer.materials[1].SetColor("_GlowColor", _glowColor);
-        else
-            _tileMeshRenderer.materials[1].SetColor("_GlowColor", Color.black);
+        _tileMeshRenderer.materials[1].SetFloat("_Use_Glow", active ? 1 : 0);
     }
 
     public void ToggleDebug(bool visible)
@@ -100,5 +90,15 @@ public class Node : MonoBehaviour
 
         Node adjacent = NodeGrid.Instance.CurrentPath[index];
         return Quaternion.LookRotation(adjacent.transform.position - transform.position, Vector3.up);
+    }
+
+    public static bool operator ==(Node a, Node b)
+    {
+        return a.Position == b.Position;
+    }
+
+    public static bool operator !=(Node a, Node b)
+    {
+        return !(a == b);
     }
 }

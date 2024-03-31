@@ -68,6 +68,7 @@ public class CameraController : Singleton<CameraController>
 
     public void SetActiveCamera(bool debugActive)
     {
+        AudioManager.Instance.PlaySoundEffect("ChangeCam");
         _vcam.Priority = debugActive ? -1 : 1;
     }
 }
