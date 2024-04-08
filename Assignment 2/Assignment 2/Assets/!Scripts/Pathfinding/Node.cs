@@ -29,7 +29,7 @@ public class Node : MonoBehaviour
     /// <remarks>
     /// As this is stored in a 2D Node[], the position doubles as a place to store the index.
     ///</remarks>
-    public Vector2Int Position;
+    public Vector2Int Position = Vector2Int.zero;
 
     /// <summary>
     /// List of Nodes within the four Cardinal directions.
@@ -90,15 +90,5 @@ public class Node : MonoBehaviour
 
         Node adjacent = NodeGrid.Instance.CurrentPath[index];
         return Quaternion.LookRotation(adjacent.transform.position - transform.position, Vector3.up);
-    }
-
-    public static bool operator ==(Node a, Node b)
-    {
-        return a.Position == b.Position;
-    }
-
-    public static bool operator !=(Node a, Node b)
-    {
-        return !(a == b);
     }
 }

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -43,8 +42,6 @@ public static class Pathfinding
     {
       openPathNodes = openPathNodes
         .OrderBy(node => node.F)
-        .ThenBy(node => node.G)
-        .ThenBy(node => node.H)
         .ToList();
       // sort list by lowest total cost, then by distance from start, then by distance from target
       // sorting this way ensures a strict preference to the lowest G value, meaning the algorithm will prefer paths with

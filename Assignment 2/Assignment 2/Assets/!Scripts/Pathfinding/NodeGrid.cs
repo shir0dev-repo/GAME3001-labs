@@ -13,7 +13,7 @@ public class NodeGrid : Singleton<NodeGrid>
     [SerializeField] private int _randObstacles = 5;
 
     public Node[,] Nodes { get; private set; }
-    public List<Node> CurrentPath { get; private set; }
+    public List<Node> CurrentPath = new();
 
     public Node CurrentStart { get; private set; }
     public Node CurrentTarget { get; private set; }
