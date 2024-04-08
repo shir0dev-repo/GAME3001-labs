@@ -10,6 +10,10 @@ public class DecisionTree
     public LOSCondition LOSNode { get; set; }
     public RadiusCondition RadiusNode { get; set; }
     public CloseCombatCondition CCNode { get; set; }
+    public HealthCondition HealthNode { get; set; }
+    public HitCondition HitNode { get; set; }
+    public RangedCombatCondition RangedCombatNode { get; set; }
+
     public List<TreeNode> TreeNodeList;
     public DecisionTree(GameObject agent)
     {
