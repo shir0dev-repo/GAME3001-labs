@@ -26,6 +26,7 @@ public class DecisionTree
         {
             currentNode = ((ConditionNode)currentNode).Condition() ? currentNode.right : currentNode.left;
         }
+
         ((ActionNode)currentNode).Action();
     }
 

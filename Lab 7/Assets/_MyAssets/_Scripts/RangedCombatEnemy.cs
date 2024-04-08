@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using UnityEngine;
 
-public class Starship : AgentObject
+public class RangedCombatEnemy : AgentObject
 {
     // TODO: Add for Lab 7a.
     [SerializeField] Transform[] patrolPoints;

@@ -11,11 +11,16 @@ public class MoveToPlayerAction : ActionNode
   }
   public override void Action()
   {
-    if (Agent.GetComponent<Starship>().state != ActionState.MOVE_TO_PLAYER)
+    if (Agent.GetComponent<AgentObject>().state != ActionState.MOVE_TO_PLAYER)
     {
       Debug.Log("Starting " + name);
-      Starship ss = Agent.GetComponent<Starship>();
-      ss.state = ActionState.MOVE_TO_PLAYER;
+      AgentObject ao = Agent.GetComponent<AgentObject>();
+      ao.state = ActionState.MOVE_TO_PLAYER;
+
+      if (AgentScript is CloseCombatEnemy cce)
+      {
+
+      }
     }
   }
 }
