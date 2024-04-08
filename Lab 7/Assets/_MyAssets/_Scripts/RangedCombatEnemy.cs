@@ -25,7 +25,7 @@ public class RangedCombatEnemy : AgentObject
     new void Start() // Note the new.
     {
         base.Start(); // Explicitly invoking Start of AgentObject.
-        Debug.Log("Starting Starship.");
+        Debug.Log("Starting Ranged Combat enemy.");
         rb = GetComponent<Rigidbody2D>();
         no = GetComponent<NavigationObject>();
         // TODO: Add for Lab 7a.
@@ -192,12 +192,12 @@ public class RangedCombatEnemy : AgentObject
         // Fourth level.
 
         // PatrolAction leaf.
-        TreeNode patrolNode = dt.AddNode(dt.RadiusNode, new MoveToPlayerAction(), TreeNodeType.LEFT_TREE_NODE);
+        TreeNode patrolNode = dt.AddNode(dt.RadiusNode, new PatrolAction(), TreeNodeType.LEFT_TREE_NODE);
         ((ActionNode)patrolNode).SetAgent(gameObject, typeof(RangedCombatEnemy));
         dt.TreeNodeList.Add(patrolNode);
 
 
-        // AttackAction leaf.
+        // LOSNode leaf.
         dt.LOSNode = new LOSCondition();
         dt.TreeNodeList.Add(dt.AddNode(dt.RadiusNode, dt.LOSNode, TreeNodeType.RIGHT_TREE_NODE));
 
@@ -223,6 +223,7 @@ public class RangedCombatEnemy : AgentObject
         ((ActionNode)moveToRangeNode).SetAgent(gameObject, typeof(RangedCombatEnemy));
         dt.TreeNodeList.Add(moveToRangeNode);
 
+        // attack action
         TreeNode attackNode = dt.AddNode(dt.RangedCombatNode, new AttackAction(), TreeNodeType.RIGHT_TREE_NODE);
         ((ActionNode)attackNode).SetAgent(gameObject, typeof(RangedCombatEnemy));
         dt.TreeNodeList.Add(attackNode);
