@@ -29,6 +29,7 @@ public class Game : MonoBehaviour
         SOMA.Initialize(gameObject);
         SOMA.AddSound("Mutara", Resources.Load<AudioClip>("Mutara"), SoundManager.SoundType.SOUND_MUSIC);
         SOMA.AddSound("Klingon", Resources.Load<AudioClip>("Klingon"), SoundManager.SoundType.SOUND_MUSIC);
+        SOMA.AddSound("Torpedo_k", Resources.Load<AudioClip>("torpedo_k"), SoundManager.SoundType.SOUND_SFX);
         SOMA.PlayMusic("Klingon");
     }
 }

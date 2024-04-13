@@ -18,7 +18,7 @@ public enum ActionState
 public class AgentObject : MonoBehaviour
 {
     [SerializeField] protected Transform m_target;
-
+    public float health;
     public ActionState state { get; set; }
     public Vector3 TargetPosition
     {
@@ -36,4 +36,6 @@ public class AgentObject : MonoBehaviour
         }
         state = ActionState.NO_ACTION;
     }
+
+
 }

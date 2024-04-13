@@ -22,6 +22,14 @@ public class RangedCombatEnemy : AgentObject
     private int patrolIndex;
     [SerializeField] Transform testTarget;
 
+    [Header("Torpedo")]
+    private bool _canFire = true;
+    [SerializeField] float _cooldown;
+    [SerializeField] float _torpedoLifespan;
+    [SerializeField] GameObject torpedoPrefab;
+    [SerializeField] float combatRange;
+    [SerializeField] private float detectRange = 3;
+
     new void Start() // Note the new.
     {
         base.Start(); // Explicitly invoking Start of AgentObject.
@@ -36,31 +44,84 @@ public class RangedCombatEnemy : AgentObject
 
     void Update()
     {
-        // bool hit = CastWhisker(whiskerAngle, Color.red);
-        // transform.Rotate(0f, 0f, Input.GetAxis("Horizontal") * rotationSpeed * Time.deltaTime);
+        Vector2 direction = (testTarget.position - transform.position).normalized;
+        whiskerAngle = Mathf.Rad2Deg * Mathf.Atan2(direction.y, direction.x);
+        bool hit = CastWhisker(whiskerAngle, Color.red);        
 
-        //if (TargetPosition != null)
-        //{
-        //    // Seek();
-        //    SeekForward();
-        //    AvoidObstacles();
-        //}
+        dt.RadiusNode.IsWithinRadius = Vector3.Distance(transform.position, testTarget.position) <= detectRange;
+        dt.LOSNode.HasLOS = hit;
 
-        // TODO: Add for Lab 7a. Add seek target for tree temporarily to planet.
-        dt.RadiusNode.IsWithinRadius = Vector3.Distance(transform.position, testTarget.position) <= 3f;
+        dt.HealthNode.IsHealthy = health > 25;
 
-        // TODO: Update for Lab 7a.
+        dt.RangedCombatNode.IsWithinCombatRange = Vector3.Distance(transform.position, testTarget.position) <= combatRange;
+        
         dt.MakeDecision();
 
         switch (state)
         {
+            case ActionState.NO_ACTION:
+                break;
             case ActionState.PATROL:
                 SeekForward();
+                break;
+            case ActionState.ATTACK:
+                Attack();
+                break;
+            case ActionState.MOVE_TO_LOS:
+                MoveToLOS();
+                break;
+            case ActionState.MOVE_TO_RANGE:
+                MoveToRange();
+                break;
+            case ActionState.FLEE:
+                Flee();
                 break;
             default:
                 rb.velocity = Vector3.zero;
                 break;
         }
+    }
+
+    private void Flee()
+    {
+        
+    }
+
+    private void MoveToRange()
+    {
+        SeekForward();
+    }
+    
+    public void SetCombatTarget()
+    {
+        m_target = testTarget;
+    }
+
+    private void MoveToLOS()
+    {
+        
+    }
+
+    private void Attack()
+    {
+        if (_canFire)
+            FireTorpedo();
+    }
+
+    private void FireTorpedo()
+    {
+        _canFire = false;
+        Game.Instance.SOMA.PlaySound("Torpedo_k");
+        Invoke(nameof(ReloadTorpedo), _cooldown);
+
+        GameObject tp = Instantiate(torpedoPrefab, transform.position, Quaternion.identity);
+        tp.GetComponent<EnemyTorpedo>().LockOnTarget(testTarget);
+        Destroy(tp, _torpedoLifespan);
+    }
+
+    private void ReloadTorpedo()
+    {
+        _canFire = true;
     }
 
     //private void AvoidObstacles()
@@ -100,9 +161,9 @@ public class RangedCombatEnemy : AgentObject
         Color rayColor = color;
 
         // Calculate the direction of the whisker.
-        Vector2 whiskerDirection = Quaternion.Euler(0, 0, angle) * transform.right;
+        Vector2 whiskerDirection = (testTarget.position - transform.position).normalized;
 
-        if (no.HasLOS(gameObject, "Planet", whiskerDirection, whiskerLength))
+        if (no.HasLOS(gameObject, "Player", whiskerDirection, whiskerLength))
         {
             // Debug.Log("Obstacle detected!");
             rayColor = Color.green;
@@ -166,10 +227,9 @@ public class RangedCombatEnemy : AgentObject
     private void BuildTree()
     {
         // Root condition node.
-
-
         dt.HealthNode = new HealthCondition();
         dt.TreeNodeList.Add(dt.HealthNode);
+        
         // Second level.
 
         // FleeAction leaf.
@@ -187,7 +247,7 @@ public class RangedCombatEnemy : AgentObject
         dt.RadiusNode = new RadiusCondition();
         dt.TreeNodeList.Add(dt.AddNode(dt.HitNode, dt.RadiusNode, TreeNodeType.LEFT_TREE_NODE));
 
-        //TODO: LOS Node
+        //TODO: second LOS node
 
         // Fourth level.
 
@@ -212,7 +272,7 @@ public class RangedCombatEnemy : AgentObject
         ((ActionNode)moveToLOSNode).SetAgent(gameObject, typeof(RangedCombatEnemy));
         dt.TreeNodeList.Add(moveToLOSNode);
 
-        // rangecombatcondition node
+        // RangeCombatCondition node
         dt.RangedCombatNode = new RangedCombatCondition();
         dt.TreeNodeList.Add(dt.AddNode(dt.LOSNode, dt.RangedCombatNode, TreeNodeType.RIGHT_TREE_NODE));
 
