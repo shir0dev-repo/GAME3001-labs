@@ -24,6 +24,7 @@ public abstract class StateMachine<TState> : MonoBehaviour where TState : Enum
     }
 
     private readonly Dictionary<TState, List<StateTransition>> m_stateTransitionDictionary = new();
+    public Dictionary<TState, List<StateTransition>> StateTransitionDictionary => m_stateTransitionDictionary;
 
     protected TState m_currentState;
     protected bool m_isTransitioningState = false;
@@ -49,7 +50,7 @@ public abstract class StateMachine<TState> : MonoBehaviour where TState : Enum
                     }
                 }
             }
-            yield return new WaitForSeconds(m_updateTimer);
+            yield return new WaitForSeconds(1);
         }        
     }
 
