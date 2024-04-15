@@ -1,14 +1,9 @@
 fileFormatVersion: 2
-guid: b11b96dd59ca96a4ba953aa0787872ec
+guid: c457c846e73796046bde1d8a95e59229
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Mini_Chr
-    second: {fileID: 2100000, guid: 98bf8020e05e9f841b860205df513396, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0
