@@ -27,6 +27,7 @@ public abstract class StateMachine<TState> : MonoBehaviour where TState : Enum
 
     protected TState m_currentState;
     protected bool m_isTransitioningState = false;
+    protected float m_updateTimer = 0.5f;
 
     public TState GetCurrentState() => m_currentState;
 
@@ -38,7 +39,7 @@ public abstract class StateMachine<TState> : MonoBehaviour where TState : Enum
         {
             if (!m_isTransitioningState && m_stateTransitionDictionary.ContainsKey(m_currentState))
             {
-                foreach (StateTransition transition in m_stateTransitionDictionary[m_currentState].OrderBy(t => t.Priority))
+                foreach (StateTransition transition in m_stateTransitionDictionary[m_currentState].OrderByDescending(t => t.Priority))
                 {
                     if (transition.CheckTransition())
                     {
@@ -48,7 +49,7 @@ public abstract class StateMachine<TState> : MonoBehaviour where TState : Enum
                     }
                 }
             }
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(m_updateTimer);
         }        
     }
 

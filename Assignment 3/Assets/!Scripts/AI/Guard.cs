@@ -9,7 +9,8 @@ public class GuardStateMachine : StateMachine<GuardStateMachine.State>
         No_Action = -1,
         Idle,
         Patrol,
-        Chase
+        Chase,
+        Searching
     }
 
     // idle -> patrol
@@ -31,6 +32,16 @@ public class GuardStateMachine : StateMachine<GuardStateMachine.State>
     private Transform m_currentPatrolPoint;
     private int m_currentPatrolIndex = 0;
 
+    [Header("Chasing")]
+    [SerializeField] private float m_viewRadius = 90f;
+    [SerializeField] private float m_viewDistance = 3f;
+    Vector3 m_lastKnownTargetPosition = Vector3.zero;
+    float m_giveUpTimer = 0, m_giveUpThreshold = 3;
+
+
+    [Space]
+    [SerializeField] private Animator m_anim;
+
 
 
     private void Awake()
@@ -44,10 +55,15 @@ public class GuardStateMachine : StateMachine<GuardStateMachine.State>
         StateTransition patrolToChase = new StateTransition(State.Chase, SearchForTargets, 1);
         StateTransition patrolToIdle = new StateTransition(State.Idle, NearStoppingPoint);
 
-        StateTransition chaseToIdle = new StateTransition(State.Idle, SearchLastKnownLocation, 1);
+        StateTransition chaseToSearching = new StateTransition(State.Searching, () => !SearchForTargets(), 1);
+
+        StateTransition searchingToChase = new StateTransition(State.Chase, SearchForTargets, 1);
+        StateTransition searchingToIdle = new StateTransition(State.Idle, GiveUpSearching);
 
         AddTransitions(State.Idle, idleToChase, idleToPatrol);
         AddTransitions(State.Patrol, patrolToChase, patrolToIdle);
+        AddTransitions(State.Chase, chaseToSearching);
+        AddTransitions(State.Searching, searchingToChase, searchingToIdle);
     }
 
     private void Update()
@@ -58,8 +74,11 @@ public class GuardStateMachine : StateMachine<GuardStateMachine.State>
                 break;
             case State.Patrol:
                 MoveToTarget();
+                RotateToTarget();
                 break;
             case State.Chase:
+                break;
+            case State.Searching:
                 break;
             default:
                 break;
@@ -71,14 +90,20 @@ public class GuardStateMachine : StateMachine<GuardStateMachine.State>
         switch (nextState)
         {
             case State.Idle:
+                Debug.Log("Setting state to Idle");
+                m_anim.SetBool("_isWalking", false);
                 break;
             case State.Patrol:
-                Debug.Log("assignment");
+                Debug.Log("Setting state to Patrol");
                 m_currentPatrolPoint = m_patrolPoints[m_currentPatrolIndex];
                 m_currentTarget = m_currentPatrolPoint;
-                StartCoroutine(RotateToTargetCoroutine());
+                m_anim.SetBool("_isWalking", true);
                 break;
             case State.Chase:
+                Debug.Log("Setting state to Chase");
+                break;
+            case State.Searching:
+                Debug.Log("Setting state to Searching");
                 break;
             default:
                 m_currentState = State.Idle;
@@ -88,7 +113,6 @@ public class GuardStateMachine : StateMachine<GuardStateMachine.State>
 
     }
 
-
     private bool ShouldMoveToNextPatrolPoint()
     {
         m_patrolStartCounter++;
@@ -97,7 +121,6 @@ public class GuardStateMachine : StateMachine<GuardStateMachine.State>
         {
             m_patrolStartCounter = 0;
             m_currentPatrolIndex++;
-            Debug.Log("increment");
             m_currentPatrolIndex %= m_patrolPoints.Length;
             return true;
         }
@@ -110,47 +133,62 @@ public class GuardStateMachine : StateMachine<GuardStateMachine.State>
         Vector2 horizontalPos = new(transform.position.x, transform.position.z);
         Vector2 patrolPos = new(m_currentPatrolPoint.position.x, m_currentPatrolPoint.position.z);
 
-        return Vector2.Distance(horizontalPos, patrolPos) < m_stoppingRadius;
+        if (Vector2.Distance(horizontalPos, patrolPos) < m_stoppingRadius)
+        {
+            m_anim.SetBool("_isWalking", false);
+            return true;
+        }
 
-
+        return false;
     }
-
+    public void FoundTarget(Transform target)
+    {
+        m_currentTarget = target;
+    }
     private bool SearchForTargets()
     {
-        return m_fieldOfView.CheckForTarget(m_targetLayer);
+        if (m_fieldOfView.CheckForTarget(m_targetLayer, out GameObject foundTarget))
+        {
+            Debug.Log("found target!");
+            m_currentTarget = foundTarget.transform;
+            return true;
+        }
+
+        return false;
     }
 
-    private bool SearchLastKnownLocation()
+    private bool GiveUpSearching()
     {
         bool giveup = false;
 
+        m_giveUpTimer += m_updateTimer;
+
         // keep last known position of target
+        if (SearchForTargets())
+        {
+            m_giveUpTimer = 0;
+            return false;
+        }
         // if target cannot be found within x amount of time, give up
+        else if (m_giveUpTimer > m_giveUpThreshold)
+        {
+            m_giveUpThreshold = 0;
+            return true;
+        }
         // return if agent gave up
 
         return giveup;
     }
 
+
     private void MoveToTarget()
     {
+        m_anim.SetBool("_isWalking", true);
         transform.position = Vector3.MoveTowards(transform.position, m_currentTarget.position, m_moveSpeed * Time.deltaTime);
     }
 
-    private IEnumerator RotateToTargetCoroutine()
+    private void RotateToTarget()
     {
-        Debug.Log("rotating!");
-        Quaternion startRotation = transform.rotation;
-        Quaternion targetRotation = Quaternion.LookRotation((m_currentTarget.position - transform.position).normalized, Vector3.up);
-
-        float timeElapsed = 0;
-
-        while (timeElapsed < m_rotationSpeed)
-        {
-            timeElapsed += Time.deltaTime;
-
-            Debug.Log(timeElapsed);
-            transform.rotation = Quaternion.Slerp(startRotation, targetRotation, timeElapsed / m_rotationSpeed);
-            yield return null;
-        }
+        transform.rotation = Quaternion.LookRotation((m_currentTarget.position - transform.position).normalized, Vector3.up);
     }
 }

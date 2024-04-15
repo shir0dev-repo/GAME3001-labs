@@ -11,7 +11,7 @@ public class FieldOfView : MonoBehaviour
     [SerializeField] private MeshFilter m_meshFilter;
 
     private Mesh m_viewMesh;
-
+    private Vector3[] m_verts;
     private void Awake()
     {
         m_viewMesh = ConstructViewMesh();
@@ -58,7 +58,7 @@ public class FieldOfView : MonoBehaviour
         }
 
 
-
+        m_verts = vertices;
         mesh.vertices = vertices;
         mesh.triangles = triangles;
         mesh.SetUVs(0, uvs);
@@ -70,14 +70,22 @@ public class FieldOfView : MonoBehaviour
         return mesh;
     }
 
-    public bool CheckForTarget(int targetLayer)
-    {
-        for (int i = 0; i < m_viewMesh.vertices.Length; i++)
-        {
-            if (Physics.Raycast(transform.position, (m_viewMesh.vertices[i] - transform.position).normalized, out RaycastHit hit, m_distance) && hit.collider.gameObject.layer == targetLayer)
-                return true;
-        }
 
+    public bool CheckForTarget(int targetLayer, out GameObject target)
+    {
+        Debug.Log("searching");
+        for (int i = 0; i < m_verts.Length - 1; i++)
+        {
+            Vector3 from = transform.TransformPoint(m_verts[^1]);
+            Vector3 to = transform.TransformDirection((m_verts[i] - transform.forward).normalized);
+            
+            if (Physics.Raycast(from, to, out RaycastHit hit, m_distance, targetLayer))
+            {
+                target = hit.collider.gameObject;
+                return true;
+            }
+        }
+        target = null;
         return false;
     }
 }
