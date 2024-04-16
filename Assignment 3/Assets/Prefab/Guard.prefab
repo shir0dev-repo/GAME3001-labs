@@ -365,21 +365,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2c8e4bc3abde6547bf8af58b47f2522, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_moveSpeed: 2
-  m_rotationSpeed: 1
   m_fieldOfView: {fileID: 2453363039529422510}
   m_targetLayer:
     serializedVersion: 2
     m_Bits: 64
-  m_patrolPoints:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  m_stoppingRadius: 0.1
   m_viewRadius: 90
   m_viewDistance: 3
-  m_anim: {fileID: 0}
+  m_movement: {fileID: 0}
 --- !u!95 &7990747717622835657
 Animator:
   serializedVersion: 5
@@ -911,7 +903,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -3360645960056517122, guid: d04ad30ba7264a749a03ad913966879c, type: 3}
+  - {fileID: 2100000, guid: 98bf8020e05e9f841b860205df513396, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
