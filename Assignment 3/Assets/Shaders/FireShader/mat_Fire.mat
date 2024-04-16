@@ -26,10 +26,10 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
-  m_LightmapFlags: 2
+  m_LightmapFlags: 1
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 1
-  m_CustomRenderQueue: 3000
+  m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -54,12 +54,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Power: 2
-    - _QueueControl: 0
+    - _Power: 4.81
+    - _QueueControl: 1
     - _QueueOffset: 0
     - _Radius: 1
     m_Colors:
     - _BaseColor: {r: 0.9433962, g: 0.3889932, b: 0.15574935, a: 1}
-    - _GlowColor: {r: 0.7490196, g: 0.7490196, b: 0.7490196, a: 1}
-    - _Speed: {r: 0, g: -0.5, b: 0, a: 0}
+    - _GlowColor: {r: 0.8490566, g: 0.42052332, b: 0.42052332, a: 1}
+    - _Speed: {r: -0.45, g: -0.85, b: 0, a: 0}
   m_BuildTextureStacks: []

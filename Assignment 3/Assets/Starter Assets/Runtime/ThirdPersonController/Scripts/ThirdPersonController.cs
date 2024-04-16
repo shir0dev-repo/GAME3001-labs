@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -60,6 +61,8 @@ namespace StarterAssets
         private float _speed;
         private float _targetRotation = 0.0f;
         private float _rotationVelocity;
+        private float _verticalVelocity;
+        
 
 #if ENABLE_INPUT_SYSTEM
         private PlayerInput _playerInput;
@@ -116,6 +119,7 @@ namespace StarterAssets
         private void Update()
         {
             GroundedCheck();
+            ApplyGravity();
             Move();
             CheckForIdleAnimation();
         }
@@ -153,6 +157,16 @@ namespace StarterAssets
             // Cinemachine will follow this target
             CinemachineCameraTarget.transform.rotation = Quaternion.Euler(_cinemachineTargetPitch,
                 _cinemachineTargetYaw, 0.0f);
+        }
+
+        private Vector3 ApplyGravity()
+        {
+            if (Grounded) 
+                _verticalVelocity = 0;
+            else
+                _verticalVelocity += 10 * Time.deltaTime;
+
+            return Vector3.down * _verticalVelocity;
         }
 
         private void Move()
@@ -211,7 +225,7 @@ namespace StarterAssets
             Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 
             // move the player
-            _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime));
+            _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) + ApplyGravity());
 
         }
 
