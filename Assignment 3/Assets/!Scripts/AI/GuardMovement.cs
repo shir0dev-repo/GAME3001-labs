@@ -7,7 +7,6 @@ using State = GuardStateMachine.State;
 
 public class GuardMovement : MonoBehaviour
 {
-
     private const int MAX_PATROL_ATTEMPTS = 3;
     private int m_patrolStartCounter = 0;
 

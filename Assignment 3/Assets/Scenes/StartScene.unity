@@ -21236,7 +21236,7 @@ PrefabInstance:
     - target: {fileID: -7511558181221131132, guid: bbaa6f7145de2474da8eb78bb53b307f, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 2100000, guid: bd1e8c172a0480c4da8f0877ac8cac7d, type: 2}
+      objectReference: {fileID: 2100000, guid: 98bf8020e05e9f841b860205df513396, type: 2}
     - target: {fileID: 919132149155446097, guid: bbaa6f7145de2474da8eb78bb53b307f, type: 3}
       propertyPath: m_Name
       value: Campfire

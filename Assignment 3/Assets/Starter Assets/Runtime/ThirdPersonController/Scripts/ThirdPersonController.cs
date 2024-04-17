@@ -119,7 +119,6 @@ namespace StarterAssets
         private void Update()
         {
             GroundedCheck();
-            ApplyGravity();
             Move();
             CheckForIdleAnimation();
         }
@@ -157,16 +156,6 @@ namespace StarterAssets
             // Cinemachine will follow this target
             CinemachineCameraTarget.transform.rotation = Quaternion.Euler(_cinemachineTargetPitch,
                 _cinemachineTargetYaw, 0.0f);
-        }
-
-        private Vector3 ApplyGravity()
-        {
-            if (Grounded) 
-                _verticalVelocity = 0;
-            else
-                _verticalVelocity += 10 * Time.deltaTime;
-
-            return Vector3.down * _verticalVelocity;
         }
 
         private void Move()
@@ -223,9 +212,10 @@ namespace StarterAssets
 
 
             Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
-
+            Vector3 verticalVelocity = 6f * Time.deltaTime * Vector3.down;
+         
             // move the player
-            _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) + ApplyGravity());
+            _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) + verticalVelocity);
 
         }
 

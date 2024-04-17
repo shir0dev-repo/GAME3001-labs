@@ -33,16 +33,16 @@ public class GuardStateMachine : StateMachine<GuardStateMachine.State>
     {
         m_currentState = State.Idle;
         m_movement = GetComponent<GuardMovement>();
-        StateTransition idleToChase = new StateTransition(State.Chase, SearchForTargets, priority: 1);
-        StateTransition idleToPatrol = new StateTransition(State.Patrol, (m_movement.ShouldMoveToNextPatrolPoint));
+        StateTransition idleToChase = new StateTransition(State.Chase, SearchForTargets, CHECK_TYPE.UPDATE,priority: 1);
+        StateTransition idleToPatrol = new StateTransition(State.Patrol, m_movement.ShouldMoveToNextPatrolPoint, CHECK_TYPE.PERIODIC);
 
-        StateTransition patrolToChase = new StateTransition(State.Chase, SearchForTargets, 1);
-        StateTransition patrolToIdle = new StateTransition(State.Idle, (m_movement.NearStoppingPoint));
+        StateTransition patrolToChase = new StateTransition(State.Chase, SearchForTargets, CHECK_TYPE.UPDATE, 1);
+        StateTransition patrolToIdle = new StateTransition(State.Idle, m_movement.NearStoppingPoint, CHECK_TYPE.PERIODIC);
 
-        StateTransition chaseToSearching = new StateTransition(State.Searching, () => !SearchForTargets(), 1);
+        StateTransition chaseToSearching = new StateTransition(State.Searching, () => !SearchForTargets(), CHECK_TYPE.PERIODIC, 1);
 
-        StateTransition searchingToChase = new StateTransition(State.Chase, SearchForTargets, 1);
-        StateTransition searchingToIdle = new StateTransition(State.Idle, GiveUpSearching);
+        StateTransition searchingToChase = new StateTransition(State.Chase, SearchForTargets, CHECK_TYPE.UPDATE, 1);
+        StateTransition searchingToIdle = new StateTransition(State.Idle, GiveUpSearching, CHECK_TYPE.PERIODIC);
 
         AddTransitions(State.Idle, idleToChase, idleToPatrol);
         AddTransitions(State.Patrol, patrolToChase, patrolToIdle);
@@ -50,8 +50,9 @@ public class GuardStateMachine : StateMachine<GuardStateMachine.State>
         AddTransitions(State.Searching, searchingToChase, searchingToIdle);
     }
 
-    private void Update()
+    protected override void Update()
     {
+        base.Update();
         switch (m_currentState)
         {
             case State.Idle:

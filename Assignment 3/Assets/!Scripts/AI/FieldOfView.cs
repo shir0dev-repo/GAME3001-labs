@@ -70,7 +70,6 @@ public class FieldOfView : MonoBehaviour
         return mesh;
     }
 
-
     public bool CheckForTarget(int targetLayer, out GameObject target)
     {
         Debug.Log("searching");
